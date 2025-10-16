@@ -1,3 +1,4 @@
+import cv2
 from settings import Settings
 from model.architecture import YoloV3Tiny, YoloLoss
 from model.dataset import (load_tfrecord_dataset,
@@ -116,3 +117,36 @@ class TinyYolo:
         img = draw_outputs(np.array(img_raw),
                             (boxes, scores, classes, nums), class_names)
         return img
+    
+
+    def predict_array(self, img_array):  
+        """  
+        Predict on a NumPy array (e.g., from camera frame)  
+        
+        Args:  
+            img_array: NumPy array of shape (H, W, 3) in BGR or RGB format  
+        
+        Returns:  
+            Annotated image as NumPy array  
+        """  
+        class_names = Settings.class_names  
+        model = self._gen_model()  
+        
+        # Convert BGR to RGB if needed (OpenCV uses BGR)  
+        if len(img_array.shape) == 3 and img_array.shape[2] == 3:  
+            img_rgb = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)  
+        else:  
+            img_rgb = img_array  
+        
+        # Convert to tensor  
+        img = tf.convert_to_tensor(img_rgb, dtype=tf.float32)  
+        img = tf.expand_dims(img, 0)  
+        img = transform_images(img, 416)  
+        
+        # Inference  
+        boxes, scores, classes, nums = model(img)  
+        
+        # Draw outputs on original image  
+        img_annotated = draw_outputs(img_rgb, (boxes, scores, classes, nums), class_names)  
+        
+        return img_annotated

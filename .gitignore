@@ -40,3 +40,4 @@ src/
 
 tmp.py
 *.h5
+barcode_detections.csv
