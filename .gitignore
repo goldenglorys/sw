@@ -39,3 +39,4 @@ checkpoints/
 src/
 
 tmp.py
+*.h5
