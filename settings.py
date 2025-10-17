@@ -19,12 +19,16 @@ class Settings:
         "learning_rate":        1e-3,
         "epochs":               100,
         "weights_num_classes":  80, #Transfer learning with a different nb classes
-        "train_dataset": "data/all.tf_record",
-        "val_dataset": "data/validation.tf_record",
+        # "train_dataset": "data/all.tf_record",
+        # "val_dataset": "data/validation.tf_record",
+        "train_dataset": "data/train_barcode_qr.tf_record", 
+        "val_dataset": "data/val_barcode_qr.tf_record", 
         "classes": "data/classes.csv",
         "pretrained_weights": "checkpoints/yolov3-tiny.weights.h5",  
-        "final_weights": "data/model/yolov3_train_final.weights.h5",  
-        "checkpoints": "checkpoints/yolov3_train_{epoch}.weights.h5",  
+        # "final_weights": "data/model/yolov3_train_final.weights.h5",  
+        # "checkpoints": "checkpoints/yolov3_train_{epoch}.weights.h5",     
+        "final_weights": "data/model/yolov3_train_final_2class.weights.h5",
+        "checkpoints": "checkpoints/yolov3_train_2class_{epoch}.weights.h5", 
         "logs": "logs/",
         "run_eagerly": True # Set to True for debugging
     }
