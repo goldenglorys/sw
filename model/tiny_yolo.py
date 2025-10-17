@@ -133,54 +133,58 @@ class TinyYolo:
         )
         # model.save_weights(final_weights)
 
-    def predict(self, image):
-        class_names = Settings.class_names
-        model = self._gen_model()
-        img_raw = Image.open(image)
-        buf = BytesIO()
-        img_raw.save(buf, "JPEG", quality=50, optimize=True)
-        img_raw = Image.open(buf)
-        img = img_to_array(img_raw)
-        img = tf.expand_dims(img, 0)
-        img = transform_images(img, 416)
-        boxes, scores, classes, nums = model(img)
-        for i in range(nums[0]):
-            logging.info(f"\t{np.array(scores[0][i])}, {np.array(boxes[0][i])}")
-        img = draw_outputs(
-            np.array(img_raw), (boxes, scores, classes, nums), class_names
-        )
+    def predict(self, image, return_metadata=False):  
+        class_names = Settings.class_names  
+        model = self._gen_model()  
+        img_raw = Image.open(image)  
+        buf = BytesIO()  
+        img_raw.save(buf, "JPEG", quality=50, optimize=True)  
+        img_raw = Image.open(buf)  
+        img = img_to_array(img_raw)  
+        img = tf.expand_dims(img, 0)  
+        img = transform_images(img, 416)  
+        boxes, scores, classes, nums = model(img)  
+        for i in range(nums[0]):  
+            logging.info(  
+                f'\t{np.array(scores[0][i])}, {np.array(boxes[0][i])}')  
+        img = draw_outputs(np.array(img_raw),  
+                            (boxes, scores, classes, nums), class_names)  
+        
+        if return_metadata:  
+            return img, boxes, scores, classes, nums  
         return img
 
-    def predict_array(self, img_array):
-        """
-        Predict on a NumPy array (e.g., from camera frame)
-
-        Args:
-            img_array: NumPy array of shape (H, W, 3) in BGR or RGB format
-
-        Returns:
-            Annotated image as NumPy array
-        """
-        class_names = Settings.class_names
-        model = self._gen_model()
-
-        # Convert BGR to RGB if needed (OpenCV uses BGR)
-        if len(img_array.shape) == 3 and img_array.shape[2] == 3:
-            img_rgb = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
-        else:
-            img_rgb = img_array
-
-        # Convert to tensor
-        img = tf.convert_to_tensor(img_rgb, dtype=tf.float32)
-        img = tf.expand_dims(img, 0)
-        img = transform_images(img, 416)
-
-        # Inference
-        boxes, scores, classes, nums = model(img)
-
-        # Draw outputs on original image
-        img_annotated = draw_outputs(
-            img_rgb, (boxes, scores, classes, nums), class_names
-        )
-
+    def predict_array(self, img_array, return_metadata=False):
+        """    
+        Predict on a NumPy array (e.g., from camera frame)    
+        
+        Args:    
+            img_array: NumPy array of shape (H, W, 3) in BGR or RGB format  
+            return_metadata: If True, return (img, boxes, scores, classes, nums)  
+        
+        Returns:    
+            Annotated image as NumPy array, or tuple if return_metadata=True  
+        """    
+        class_names = Settings.class_names    
+        model = self._gen_model()    
+        
+        # Convert BGR to RGB if needed (OpenCV uses BGR)    
+        if len(img_array.shape) == 3 and img_array.shape[2] == 3:    
+            img_rgb = cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)    
+        else:    
+            img_rgb = img_array    
+        
+        # Convert to tensor    
+        img = tf.convert_to_tensor(img_rgb, dtype=tf.float32)    
+        img = tf.expand_dims(img, 0)    
+        img = transform_images(img, 416)    
+        
+        # Inference    
+        boxes, scores, classes, nums = model(img)    
+        
+        # Draw outputs on original image    
+        img_annotated = draw_outputs(img_rgb, (boxes, scores, classes, nums), class_names)    
+        
+        if return_metadata:  
+            return img_annotated, boxes, scores, classes, nums  
         return img_annotated

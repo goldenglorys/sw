@@ -43,5 +43,6 @@ src/
 
 tmp.py
 *.h5
-barcode_detections.csv
+barcode_*.csv
+barcode_detections_backup.csv.
 data/train_barcode_qr.tf_record
