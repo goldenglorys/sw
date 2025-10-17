@@ -18,7 +18,8 @@ class CameraDetector:
             platform: 'desktop', 'jetson', or 'rpi'  
         """  
         self.platform = platform  
-        self.model = TinyYolo()  
+        # self.model = TinyYolo()  
+        self.model = TinyYolo(classes=2)
         self.camera = self._init_camera(camera_source)  
           
     def _init_camera(self, source):  

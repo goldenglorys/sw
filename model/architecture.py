@@ -54,7 +54,8 @@ def DarknetConv(x, filters, size, strides=1, batch_norm=True):
                use_bias=not batch_norm, kernel_regularizer=l2(0.0005))(x)
     if batch_norm:
         x = BatchNormalization()(x)
-        x = LeakyReLU(alpha=0.1)(x)
+        # x = LeakyReLU(alpha=0.1)(x)
+        x = LeakyReLU(negative_slope=0.1)(x)
     return x
 
 
@@ -118,6 +119,14 @@ def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
         # y_true: (batch_size, grid, grid, anchors, (x1, y1, x2, y2, obj, cls))
         true_box, true_obj, true_class_idx = tf.split(
             y_true, (4, 1, 1), axis=-1)
+        
+        # Convert class indices to one-hot encoding  
+        true_class_idx = tf.cast(true_class_idx, tf.int32)  
+        true_class_onehot = tf.one_hot(  
+            tf.squeeze(true_class_idx, axis=-1),   
+            depth=classes  
+        )  
+        
         true_xy = (true_box[..., 0:2] + true_box[..., 2:4]) / 2
         true_wh = true_box[..., 2:4] - true_box[..., 0:2]
 
@@ -154,7 +163,7 @@ def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
             (1 - obj_mask) * ignore_mask * obj_loss
         # TODO: use binary_crossentropy instead
         class_loss = obj_mask * binary_crossentropy(
-            true_class_idx, pred_class)
+            true_class_onehot, pred_class)
 
         # 6. sum over (batch, gridx, gridy, anchors) => (batch, 1)
         xy_loss = tf.reduce_sum(xy_loss, axis=(1, 2, 3))
