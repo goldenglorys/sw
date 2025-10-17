@@ -29,4 +29,4 @@ class Settings:
         "run_eagerly": True # Set to True for debugging
     }
     
-    class_names = ["Barcode"]
+    class_names = ["Barcode", "QR"]

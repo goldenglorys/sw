@@ -32,6 +32,9 @@ venv/
 # Train & val images
 train/
 validation/
+archive/
+train_images/
+val_images/
 
 # Checkpoints
 checkpoints/
