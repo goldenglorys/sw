@@ -11,8 +11,8 @@ class Settings:
         "score_threshold":      0.5,
         "iou_threshold":        0.3,
         "max_boxes":            5,
-        # "weights":              "data/model/yolov3_train_final.weights.h5",
-        "weights":              "data/model/yolov3_train_2class_35.weights.h5",
+        # "weights":              "data/model/yolov3_train_class1_final.weights.h5",
+        "weights":              "data/model/yolov3_train_class2_final.weights.h5",
     }
     
     train = {
