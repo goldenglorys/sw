@@ -85,16 +85,16 @@ echo ""
 # echo ""
 
 # Step 5: Install Python dependencies
-print_info "Step 5/6: Installing Python dependencies..."
-pip3 install scikit-build
-pip3 install opencv-python
-pip3 install pillow
-pip3 install pyzbar
-pip3 install requests
-pip3 install numpy
+# print_info "Step 5/6: Installing Python dependencies..."
+# pip3 install scikit-build
+# pip3 install opencv-python
+# pip3 install pillow
+# pip3 install pyzbar
+# pip3 install requests
+# pip3 install numpy
 
-print_success "Python dependencies installed"
-echo ""
+# print_success "Python dependencies installed"
+# echo ""
 
 # Step 6: Install TensorFlow for Jetson
 print_info "Step 6/6: Installing TensorFlow for Jetson..."
