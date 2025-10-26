@@ -86,6 +86,7 @@ echo ""
 
 # Step 5: Install Python dependencies
 print_info "Step 5/6: Installing Python dependencies..."
+pip3 install scikit-build
 pip3 install opencv-python
 pip3 install pillow
 pip3 install pyzbar
