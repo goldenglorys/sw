@@ -40,10 +40,10 @@ print_success "Jetson Nano detected!"
 echo ""
 
 # Step 1: Update system
-print_info "Step 1/6: Updating system packages..."
-sudo apt update
-print_success "System updated"
-echo ""
+# print_info "Step 1/6: Updating system packages..."
+# sudo apt update
+# print_success "System updated"
+# echo ""
 
 # Step 2: Install system dependencies
 # print_info "Step 2/6: Installing system dependencies..."
@@ -66,17 +66,17 @@ echo ""
 # echo ""
 
 # Step 3: Create virtual environment
-print_info "Step 3/6: Setting up Python virtual environment..."
-if [ ! -d ".venv" ]; then
-    python3 -m venv .venv
-    print_success "Virtual environment created"
-else
-    print_info "Virtual environment already exists"
-fi
+# print_info "Step 3/6: Setting up Python virtual environment..."
+# if [ ! -d ".venv" ]; then
+#     python3 -m venv .venv
+#     print_success "Virtual environment created"
+# else
+#     print_info "Virtual environment already exists"
+# fi
 
-source .venv/bin/activate
-print_success "Virtual environment activated"
-echo ""
+# source .venv/bin/activate
+# print_success "Virtual environment activated"
+# echo ""
 
 # Step 4: Upgrade pip
 # print_info "Step 4/6: Upgrading pip..."
