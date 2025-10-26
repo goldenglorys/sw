@@ -46,43 +46,43 @@ print_success "System updated"
 echo ""
 
 # Step 2: Install system dependencies
-print_info "Step 2/6: Installing system dependencies..."
-sudo apt install -y \
-    python3-pip \
-    python3-dev \
-    python3-opencv \
-    libzbar0 \
-    libzbar-dev \
-    v4l-utils \
-    gstreamer1.0-tools \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav \
-    libgstreamer1.0-dev
+# print_info "Step 2/6: Installing system dependencies..."
+# sudo apt install -y \
+#     python3-pip \
+#     python3-dev \
+#     python3-opencv \
+#     libzbar0 \
+#     libzbar-dev \
+#     v4l-utils \
+#     gstreamer1.0-tools \
+#     gstreamer1.0-plugins-base \
+#     gstreamer1.0-plugins-good \
+#     gstreamer1.0-plugins-bad \
+#     gstreamer1.0-plugins-ugly \
+#     gstreamer1.0-libav \
+#     libgstreamer1.0-dev
 
-print_success "System dependencies installed"
-echo ""
+# print_success "System dependencies installed"
+# echo ""
 
 # Step 3: Create virtual environment
 print_info "Step 3/6: Setting up Python virtual environment..."
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
+if [ ! -d ".venv" ]; then
+    python3 -m venv .venv
     print_success "Virtual environment created"
 else
     print_info "Virtual environment already exists"
 fi
 
-source venv/bin/activate
+source .venv/bin/activate
 print_success "Virtual environment activated"
 echo ""
 
 # Step 4: Upgrade pip
-print_info "Step 4/6: Upgrading pip..."
-pip3 install --upgrade pip
-print_success "Pip upgraded"
-echo ""
+# print_info "Step 4/6: Upgrading pip..."
+# pip3 install --upgrade pip
+# print_success "Pip upgraded"
+# echo ""
 
 # Step 5: Install Python dependencies
 print_info "Step 5/6: Installing Python dependencies..."
@@ -156,7 +156,7 @@ echo ""
 print_success "Your Jetson Nano is ready for barcode detection!"
 echo ""
 echo "To run the application:"
-echo "  1. source venv/bin/activate"
+echo "  1. source .venv/bin/activate"
 echo "  2. python3 camera_app.py"
 echo ""
 print_info "Press 'q' or ESC to quit the application"
