@@ -9,7 +9,7 @@ from pyzbar.pyzbar import decode
 import requests
 import json
 import sys
-
+import traceback
 
 class CameraDetector:
     def __init__(self, camera_source=0):
@@ -36,6 +36,69 @@ class CameraDetector:
             sys.exit(1)
         
         print(f"Camera initialized: {test_frame.shape[1]}x{test_frame.shape[0]}")
+        
+        self.seen_codes = set()
+        self.frame_count = 0
+
+class CameraDetector:
+    def __init__(self, camera_source=0):
+        """Initialize camera-based barcode/QR detector"""
+
+        # --- FORCED DEBUG LOGGING ---
+        # This makes GStreamer and OpenCV print detailed internal logs.
+        os.environ['GST_DEBUG'] = '3'
+        os.environ['OPENCV_LOG_LEVEL'] = 'DEBUG'
+        print("="*60)
+        print("!!! VERBOSE LOGGING ENABLED FOR GSTREAMER AND OPENCV !!!")
+        print("="*60 + "\n")
+
+        self.platform = self._detect_platform()
+        print(f"Platform: {self.platform}")
+        
+        print("Loading YOLO model...")
+        self.model = TinyYolo(classes=2)
+        print("Model loaded successfully")
+        
+        try:
+            if camera_source == 0:
+                print("Getting camera source for the platform...")
+                camera_source = self._get_camera_source()
+                print(f"Using camera source string: {camera_source}")
+            
+            print("\nAttempting to initialize camera with cv2.VideoCapture()...")
+            self.camera = self._init_camera(camera_source)
+            
+            if not self.camera or not self.camera.isOpened():
+                print("\n" + "#"*60)
+                print("### ERROR: camera.isOpened() returned FALSE. ###")
+                print("### The GStreamer logs above should contain the root cause. ###")
+                print("#"*60 + "\n")
+                sys.exit(1)
+            
+            print("SUCCESS: camera.isOpened() returned TRUE.")
+            
+            ret, test_frame = self.camera.read()
+            if not ret or test_frame is None:
+                print("ERROR: Camera opened, but cv2.read() failed to retrieve a frame!")
+                sys.exit(1)
+            
+            print(f"Camera initialized successfully: {test_frame.shape[1]}x{test_frame.shape[0]}")
+            
+        except Exception as e:
+            # ====================================================================
+            #            !!! CATCHING THE "ACTUAL ERROR" !!!
+            # If the program crashes, this block will execute and print the
+            # full, detailed Python exception traceback.
+            # ====================================================================
+            print("\n" + "*"*60)
+            print("***** AN UNHANDLED PYTHON EXCEPTION OCCURRED *****")
+            print(f"***** Exception Type: {type(e).__name__}")
+            print(f"***** Exception Message: {e}")
+            print("***** FULL TRACEBACK: *****")
+            traceback.print_exc()
+            print("*"*60 + "\n")
+            sys.exit(1)
+            # ====================================================================
         
         self.seen_codes = set()
         self.frame_count = 0
