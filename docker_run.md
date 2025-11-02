@@ -17,9 +17,8 @@ This command starts the container and gives it access to the Jetson's GPU, camer
 ```bash
 docker run -it --rm \
   --gpus all \
+  --net=host \
   -v /tmp/argus_socket:/tmp/argus_socket \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v ~/.Xauthority:/root/.Xauthority \
   -e DISPLAY=$DISPLAY \
   -e PLATFORM_OVERRIDE=jetson \
   -v $(pwd):/app \
