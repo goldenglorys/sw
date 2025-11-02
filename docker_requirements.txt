@@ -1,0 +1,6 @@
+Pillow==8.4.0
+pyzbar==0.1.9
+numpy==1.19.5
+requests==2.27.1
+absl-py
+psutil
