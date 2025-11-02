@@ -22,6 +22,8 @@ if ! command -v docker &> /dev/null || ! dpkg -l | grep -q nvidia-docker2; then
     # Install NVIDIA Container Runtime
     sudo apt-get install -y nvidia-docker2
     sudo systemctl restart docker
+
+    docker run --rm --gpus all nvcr.io/nvidia/l4t-base:r32.7.1 nvidia-smi
     
     echo -e "\n\n******************* IMPORTANT *******************"
     echo "You must log out and log back in for the user group changes to take effect."
