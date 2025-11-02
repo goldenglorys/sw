@@ -12,11 +12,12 @@ RUN pip3 install --no-cache-dir -U pip
 RUN pip3 install --no-cache-dir \
     Pillow==8.4.0 \
     pyzbar==0.1.9 \
-    streamlit==1.28.0 \
     numpy==1.21.6 \
     requests==2.31.0 \
     absl-py
 
 # EXPOSE 8501
+
+#streamlit==1.28.0 \
 
 CMD ["/bin/bash"]
