@@ -13,7 +13,7 @@ RUN pip3 install --no-cache-dir \
     Pillow==8.4.0 \
     pyzbar==0.1.9 \
     numpy==1.19.5 \
-    requests==2.31.0 \
+    requests==2.27.1 \
     absl-py
 
 # EXPOSE 8501
