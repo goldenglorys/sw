@@ -18,6 +18,7 @@ RUN pip3 install --no-cache-dir \
     numpy==1.19.5 \
     requests==2.27.1 \
     absl-py
+    psutil
 
 # EXPOSE 8501
 
