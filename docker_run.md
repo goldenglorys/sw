@@ -15,7 +15,14 @@ This command starts the container and gives it access to the Jetson's GPU, camer
 
 **Command:**
 ```bash
-docker run -it --rm --gpus all --device /dev/video0 -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY barcode-detector
+docker run -it --rm \
+  --gpus all \
+  --device /dev/video0 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -e DISPLAY=$DISPLAY \
+  -e PLATFORM_OVERRIDE=jetson \
+  -v $(pwd):/app \
+  barcode-detector
 ```
 
 **Inside the container, run:**
@@ -33,7 +40,12 @@ This command starts the container, gives it GPU access, and maps the container's
 
 **Command:**
 ```bash
-docker run -it --rm --gpus all -p 8501:8501 barcode-detector
+docker run -it --rm \
+  --gpus all \
+  -p 8501:8501 \
+  -e PLATFORM_OVERRIDE=jetson \
+  -v $(pwd):/app \
+  barcode-detector
 ```
 
 **Inside the container, run:**
