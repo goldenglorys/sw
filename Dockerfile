@@ -1,5 +1,7 @@
 FROM nvcr.io/nvidia/l4t-tensorflow:r32.7.1-tf2.7-py3
 
+ENV PYTHONPATH="${PYTHONPATH}:/usr/lib/python3.6/dist-packages/"
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
