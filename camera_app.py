@@ -40,8 +40,25 @@ class CameraDetector:
         self.seen_codes = set()
         self.frame_count = 0
 
+    # def _detect_platform(self):
+    #     """Auto-detect platform"""
+    #     if os.path.exists('/etc/nv_tegra_release'):
+    #         return 'jetson'
+    #     if os.path.exists('/proc/device-tree/model'):
+    #         try:
+    #             with open('/proc/device-tree/model', 'r') as f:
+    #                 if 'raspberry pi' in f.read().lower():
+    #                     return 'rpi'
+    #         except:
+    #             pass
+    #     return 'desktop'
+
     def _detect_platform(self):
-        """Auto-detect platform"""
+        """Auto-detect platform, with Docker override"""
+        platform_override = os.environ.get('PLATFORM_OVERRIDE')
+        if platform_override:
+            print(f"Platform override detected: {platform_override}")
+            return platform_override.lower()
         if os.path.exists('/etc/nv_tegra_release'):
             return 'jetson'
         if os.path.exists('/proc/device-tree/model'):
