@@ -10,7 +10,7 @@ COPY . .
 
 RUN pip3 install --no-cache-dir -U pip
 RUN pip3 install --no-cache-dir \
-    Pillow==9.5.0 \
+    Pillow==8.4.0 \
     pyzbar==0.1.9 \
     streamlit==1.28.0 \
     numpy==1.21.6 \
