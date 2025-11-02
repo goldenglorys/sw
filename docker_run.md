@@ -19,6 +19,7 @@ docker run -it --rm \
   --gpus all \
   -v /tmp/argus_socket:/tmp/argus_socket \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -v ~/.Xauthority:/root/.Xauthority \
   -e DISPLAY=$DISPLAY \
   -e PLATFORM_OVERRIDE=jetson \
   -v $(pwd):/app \
