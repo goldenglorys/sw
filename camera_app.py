@@ -11,36 +11,7 @@ import json
 import sys
 import traceback
 
-# class CameraDetector:
-#     def __init__(self, camera_source=0):
-#         """Initialize camera-based barcode/QR detector"""
-#         self.platform = self._detect_platform()
-#         print(f"Platform: {self.platform}")
-        
-#         print("Loading YOLO model...")
-#         self.model = TinyYolo(classes=2)
-#         print("Model loaded successfully")
-        
-#         if camera_source == 0:
-#             camera_source = self._get_camera_source()
-        
-#         self.camera = self._init_camera(camera_source)
-        
-#         if not self.camera.isOpened():
-#             print("ERROR: Failed to open camera!")
-#             sys.exit(1)
-        
-#         ret, test_frame = self.camera.read()
-#         if not ret or test_frame is None:
-#             print("ERROR: Camera opened but cannot read frames!")
-#             sys.exit(1)
-        
-#         print(f"Camera initialized: {test_frame.shape[1]}x{test_frame.shape[0]}")
-        
-#         self.seen_codes = set()
-#         self.frame_count = 0
-
-# camera_app.py
+os.environ["OPENCV_VIDEOIO_BACKEND"] = "opencv_egl"
 
 class CameraDetector:
     def __init__(self, camera_source=0):
@@ -77,19 +48,6 @@ class CameraDetector:
         self.seen_codes = set()
         self.frame_count = 0
 
-    # def _detect_platform(self):
-    #     """Auto-detect platform"""
-    #     if os.path.exists('/etc/nv_tegra_release'):
-    #         return 'jetson'
-    #     if os.path.exists('/proc/device-tree/model'):
-    #         try:
-    #             with open('/proc/device-tree/model', 'r') as f:
-    #                 if 'raspberry pi' in f.read().lower():
-    #                     return 'rpi'
-    #         except:
-    #             pass
-    #     return 'desktop'
-
     def _detect_platform(self):
         """Auto-detect platform, with Docker override"""
         platform_override = os.environ.get('PLATFORM_OVERRIDE')
@@ -110,22 +68,14 @@ class CameraDetector:
     def _get_camera_source(self):
         """Get appropriate camera source"""
         if self.platform == 'jetson':
-            # return (
-            #     "nvarguscamerasrc ! "
-            #     "video/x-raw(memory:NVMM), width=(int)1280, height=(int)720, framerate=(fraction)30/1 ! "
-            #     "nvvidconv flip-method=0 ! "
-            #     "video/x-raw, width=(int)1280, height=(int)720, format=(string)BGRx ! "
-            #     "videoconvert ! "
-            #     "video/x-raw, format=(string)BGR ! appsink"
-            # )
-
             return (
                 "nvarguscamerasrc ! "
-                "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
-                "nvvidconv flip-method=0 ! "
-                "video/x-raw, width=1280, height=720, format=BGRx ! "
+                "video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! "
+                "nvvidconv ! "
+                "video/x-raw, format=BGRx ! "
                 "videoconvert ! "
-                "video/x-raw, format=BGR ! appsink"
+                "video/x-raw, format=BGR ! "
+                "appsink drop=true max-buffers=1"
             )
         return 0
 
@@ -369,7 +319,7 @@ if __name__ == "__main__":
 
     try:
         detector = CameraDetector()
-        detector.run()
+        detector.run(display=False, save_detections=True, log_csv=True)
     except Exception as e:
         print(f"\nFATAL ERROR: {e}")
         import traceback
