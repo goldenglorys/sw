@@ -1,4 +1,5 @@
-FROM nvcr.io/nvidia/l4t-tensorflow:r32.7.1-tf2.7-py3
+# FROM nvcr.io/nvidia/l4t-tensorflow:r32.7.1-tf2.7-py3
+FROM nvcr.io/nvidia/l4t-ml:r32.7.1-py3
 
 ENV PYTHONPATH="${PYTHONPATH}:/usr/lib/python3.6/dist-packages/"
 
@@ -8,7 +9,7 @@ COPY docker_requirements.txt .
 
 RUN apt-get update && apt-get install -y \
     libzbar0 \
-    python3-opencv \
+    # python3-opencv \
     v4l-utils \
     gstreamer1.0-tools \
     gstreamer1.0-plugins-base \
