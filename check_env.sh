@@ -1,0 +1,40 @@
+#!/bin/bash
+echo "=========================================="
+echo "      Bare-Metal Environment Check      "
+echo "=========================================="
+
+echo -e "\n--- 1. Foundational System Libraries (from JetPack) ---"
+echo "L4T Version (Goal: R32, REV: 7.1):"
+cat /etc/nv_tegra_release || echo "  -> Not Found"
+echo "\nCUDA Version (Goal: 10.2):"
+nvcc --version 2>/dev/null | grep "release" || echo "  -> Not Found"
+echo "\ncuDNN Version (Goal: 8.2.1):"
+dpkg -l | grep libcudnn8 | awk '{print $3}' || echo "  -> Not Found"
+echo "\nTensorRT Version (Goal: 8.2.1):"
+dpkg -l | grep libnvinfer8 | awk '{print $3}' || echo "  -> Not Found"
+
+echo -e "\n--- 2. System Dependencies (from apt) ---"
+echo "libzbar0 (Goal: Installed):"
+dpkg -l | grep libzbar0 | awk '{print $3}' || echo "  -> Not Found"
+echo "\nGStreamer Version (Goal: 1.14.5):"
+gst-inspect-1.0 --version 2>/dev/null | head -n 1 || echo "  -> Not Found"
+
+echo -e "\n--- 3. Core Python Libraries (in your current env) ---"
+echo "Checking Python 3 environment..."
+if [[ -z "$VIRTUAL_ENV" ]]; then
+    echo "  -> WARNING: You are NOT in a virtual environment!"
+fi
+echo "Python Version:"
+python3 --version || echo "  -> Not Found"
+echo "\nOpenCV Version (Goal: 4.5.0):"
+python3 -c "import cv2; print(cv2.__version__)" 2>/dev/null || echo "  -> Not Found or cv2 is broken"
+echo "\nTensorFlow Version (Goal: ~2.7.0):"
+python3 -c "import tensorflow as tf; print(tf.__version__)" 2>/dev/null || echo "  -> Not Found"
+echo "\nNumPy Version (Goal: ~1.19.5):"
+python3 -c "import numpy; print(numpy.__version__)" 2>/dev/null || echo "  -> Not Found"
+echo "\nPillow Version:"
+python3 -c "from PIL import __version__; print(__version__)" 2>/dev/null || echo "  -> Not Found"
+
+echo -e "\n=========================================="
+echo "Check Complete."
+echo "=========================================="
