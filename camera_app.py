@@ -319,7 +319,7 @@ if __name__ == "__main__":
 
     try:
         detector = CameraDetector()
-        detector.run(display=False, save_detections=True, log_csv=True)
+        detector.run()
     except Exception as e:
         print(f"\nFATAL ERROR: {e}")
         import traceback
