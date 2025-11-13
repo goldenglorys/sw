@@ -13,7 +13,7 @@ except ImportError:
 print("Initializing SparkFun AS7265x sensor...")
 
 # Create sensor object
-sensor = qwiic_as7265x.QwiicAs7265x()
+sensor = qwiic_as7265x.QwiicAS7265x()
 
 # Initialize
 if sensor.begin() != 0:
