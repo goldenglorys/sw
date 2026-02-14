@@ -1,3 +1,4 @@
+from pathlib import Path
 import cv2
 from model.tiny_yolo import TinyYolo
 from PIL import Image
@@ -109,7 +110,11 @@ class CameraDetector:
         csv_writer = None
         if log_csv:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            csv_filename = f"barcode_log_{timestamp}.csv"
+            log_dir = Path("logs")
+            log_dir.mkdir(exist_ok=True)
+            csvs_dir = log_dir / "csvs"
+            csvs_dir.mkdir(exist_ok=True)
+            csv_filename = csvs_dir / f"barcode_log_{timestamp}.csv"
             try:
                 csv_file = open(csv_filename, "w", newline="", encoding='utf-8')
                 csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
@@ -264,8 +269,12 @@ class CameraDetector:
                 if save_detections and barcode_data and is_new_code:
                     try:
                         safe_data = ''.join(c for c in barcode_data if c.isalnum() or c in '-_.')[:30]
-                        filename = f'detection_{safe_data}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg'
-                        cv2.imwrite(filename, annotated_bgr)
+                        # filename = f'detection_{safe_data}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg'
+                        # cv2.imwrite(filename, annotated_bgr)
+                        images_dir = log_dir / "images"
+                        images_dir.mkdir(exist_ok=True)
+                        filename = images_dir / f'detection_{safe_data}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg'
+                        cv2.imwrite(str(filename), annotated_bgr)  # ✅ Saves to logs/images/
                         print(f"  → Saved: {filename}")
                     except:
                         pass
