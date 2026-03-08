@@ -48,3 +48,4 @@ barcode_detections_backup.csv.
 data/train_barcode_qr.tf_record
 yolo_barcode_detector.onnx
 logs/images
+*.csv
