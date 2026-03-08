@@ -91,6 +91,7 @@ class CameraDetector:
     def _get_camera_source(self):
         """Get appropriate camera source via platform_config (respects FORCE_USB)"""
         from platform_config import get_camera_source
+
         return get_camera_source(self.platform)
 
     # def _init_camera(self, source):
@@ -107,10 +108,15 @@ class CameraDetector:
         """Initialize camera"""
         try:
             from platform_config import get_opencv_backend
+
             if isinstance(source, str):
                 return cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
             backend = get_opencv_backend(self.platform)
-            return cv2.VideoCapture(source, backend) if backend else cv2.VideoCapture(source)
+            return (
+                cv2.VideoCapture(source, backend)
+                if backend
+                else cv2.VideoCapture(source)
+            )
         except Exception as e:
             print(f"ERROR initializing camera: {e}")
             sys.exit(1)
@@ -143,6 +149,33 @@ class CameraDetector:
             try:
                 csv_file = open(csv_filename, "w", newline="", encoding="utf-8")
                 csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+                try:
+                    nir_headers = self.nir_thread.get_csv_headers()
+                except Exception as e:
+                    print(f"WARNING: Could not get NIR headers: {e}")
+                    nir_headers = [
+                        f"NIR_{wl}nm"
+                        for wl in [
+                            410,
+                            435,
+                            460,
+                            485,
+                            510,
+                            535,
+                            560,
+                            585,
+                            610,
+                            645,
+                            680,
+                            705,
+                            730,
+                            760,
+                            810,
+                            860,
+                            900,
+                            940,
+                        ]
+                    ] + ["NIR_Temperature", "NIR_Timestamp", "NIR_ReadingIndex"]
                 csv_writer.writerow(
                     [
                         "Timestamp",
@@ -153,7 +186,7 @@ class CameraDetector:
                         "Detected Class",
                         "Confidence",
                     ]
-                    + self.nir_thread.get_csv_headers()
+                    + nir_headers
                 )
                 csv_file.flush()
                 print(f"Logging to: {csv_filename}\n")
@@ -323,6 +356,11 @@ class CameraDetector:
                 if log_csv and barcode_data and is_new_code and csv_writer:
                     try:
                         nir_reading = self.nir_thread.get_latest()
+                        try:
+                            nir_row = self.nir_thread.get_csv_row(nir_reading)
+                        except Exception as e:
+                            print(f"WARNING: NIR row error: {e}")
+                            nir_row = [""] * 21
                         csv_writer.writerow(
                             [
                                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -333,11 +371,12 @@ class CameraDetector:
                                 detected_class,
                                 confidence,
                             ]
-                            + self.nir_thread.get_csv_row(nir_reading)
+                            + nir_row
                         )
                         csv_file.flush()
-                    except:
-                        pass
+                        print(f"  → CSV row written")
+                    except Exception as e:
+                        print(f"CSV write error: {e}")
 
                 # Console log
                 if barcode_data and is_new_code:
