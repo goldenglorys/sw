@@ -31,7 +31,6 @@ else
     echo "I2C devices passed through: $I2C_FLAGS"
 fi
 
-# ── Run container ──────
 docker run -it --rm \
   --gpus all \
   --net=host \
@@ -45,4 +44,5 @@ docker run -it --rm \
   -e PLATFORM_OVERRIDE=jetson \
   -e FORCE_USB=1 \
   -v "$(pwd)":/app \
-  barcode-detector
+  barcode-detector \
+  python3 camera_app.py
