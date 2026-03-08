@@ -12,6 +12,8 @@ import json
 import sys
 import traceback
 from sparkfun.sensor_thread import NIRSensorThread
+import sys
+sys.stdout.reconfigure(encoding='utf-8') if hasattr(sys.stdout, 'reconfigure') else None
 
 os.environ["OPENCV_VIDEOIO_BACKEND"] = "opencv_egl"
 
@@ -374,9 +376,10 @@ class CameraDetector:
                             + nir_row
                         )
                         csv_file.flush()
-                        print(f"  → CSV row written")
                     except Exception as e:
                         print(f"CSV write error: {e}")
+                    else:
+                        print(f"  -> CSV row written")
 
                 # Console log
                 if barcode_data and is_new_code:
