@@ -74,26 +74,43 @@ class CameraDetector:
                 pass
         return "desktop"
 
+    # def _get_camera_source(self):
+    #     """Get appropriate camera source"""
+    #     if self.platform == "jetson":
+    #         return (
+    #             "nvarguscamerasrc ! "
+    #             "video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! "
+    #             "nvvidconv ! "
+    #             "video/x-raw, format=BGRx ! "
+    #             "videoconvert ! "
+    #             "video/x-raw, format=BGR ! "
+    #             "appsink drop=true max-buffers=1"
+    #         )
+    #     return 0
+
     def _get_camera_source(self):
-        """Get appropriate camera source"""
-        if self.platform == "jetson":
-            return (
-                "nvarguscamerasrc ! "
-                "video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! "
-                "nvvidconv ! "
-                "video/x-raw, format=BGRx ! "
-                "videoconvert ! "
-                "video/x-raw, format=BGR ! "
-                "appsink drop=true max-buffers=1"
-            )
-        return 0
+        """Get appropriate camera source via platform_config (respects FORCE_USB)"""
+        from platform_config import get_camera_source
+        return get_camera_source(self.platform)
+
+    # def _init_camera(self, source):
+    #     """Initialize camera"""
+    #     try:
+    #         if self.platform == "jetson" and isinstance(source, str):
+    #             return cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
+    #         return cv2.VideoCapture(source)
+    #     except Exception as e:
+    #         print(f"ERROR initializing camera: {e}")
+    #         sys.exit(1)
 
     def _init_camera(self, source):
         """Initialize camera"""
         try:
-            if self.platform == "jetson" and isinstance(source, str):
+            from platform_config import get_opencv_backend
+            if isinstance(source, str):
                 return cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
-            return cv2.VideoCapture(source)
+            backend = get_opencv_backend(self.platform)
+            return cv2.VideoCapture(source, backend) if backend else cv2.VideoCapture(source)
         except Exception as e:
             print(f"ERROR initializing camera: {e}")
             sys.exit(1)
