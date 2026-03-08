@@ -3,7 +3,7 @@ pyzbar==0.1.9
 numpy==1.19.5
 requests==2.27.1
 absl-py
-psutil
+psutil==5.9.0
 # SparkFun AS7265x NIR sensor
 sparkfun-qwiic-as7265x
 sparkfun-qwiic-i2c
