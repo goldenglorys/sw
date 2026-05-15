@@ -84,29 +84,36 @@ Use this when you want to scan different plastic materials and build a labelled 
 
 ### How it works
 
-The script is fully interactive and on-demand:
-1. You enter a material type (e.g. `HDPE`)
-2. Place the plastic sample under the sensor
-3. Press **Enter** to take one scan — takes ~1 second
-4. Repeat as many times as you want for that material
-5. Type `n` to switch to a new material type
-6. Type `q` to finish the session
-
-Every scan is saved immediately to a single CSV file tagged with the material name. Nothing is written unless you explicitly trigger a scan, so there is no risk of capturing empty readings.
+- All runs append to **one persistent CSV file** (`logs/csvs/plastic_nir_dataset.csv`). Every time you run the script, new readings are added to the same file — nothing is overwritten.
+- Scans are **on-demand**: press **Enter** when the sample is ready. Nothing is saved unless you trigger it, so empty/air readings are impossible.
+- You can supply the material type via the `--material` flag to skip any prompts, or run interactively and type the material name each session.
 
 ### Running directly on Jetson (without Docker)
 
 ```bash
-# From the project root
+# Non-interactive — material tag supplied upfront (recommended workflow)
+python3 sparkfun/plastic_scanner.py --material HDPE
+python3 sparkfun/plastic_scanner.py -m PET
+
+# Interactive — prompts you to type a material name each time
 python3 sparkfun/plastic_scanner.py
 
-# Custom output path
-python3 sparkfun/plastic_scanner.py --output /path/to/my_dataset.csv
+# Custom CSV path (still appends if the file already exists)
+python3 sparkfun/plastic_scanner.py -m HDPE --output /path/to/my_dataset.csv
 ```
 
 ### Running inside Docker
 
 ```bash
+# Non-interactive (recommended)
+docker run -it --rm \
+  --privileged \
+  --device=/dev/i2c-1 \
+  -v $(pwd):/app \
+  barcode-detector \
+  python3 sparkfun/plastic_scanner.py --material HDPE
+
+# Interactive
 docker run -it --rm \
   --privileged \
   --device=/dev/i2c-1 \
@@ -118,63 +125,55 @@ docker run -it --rm \
 > No `--gpus`, no `--device=/dev/video*`, no display flags needed — this script only uses the I2C sensor.  
 > Change `/dev/i2c-1` to `/dev/i2c-0` if that's what `ls /dev/i2c*` shows on your Jetson.
 
-### Custom output path in Docker
+### Typical workflow for collecting a full dataset
 
 ```bash
-docker run -it --rm \
-  --privileged \
-  --device=/dev/i2c-1 \
-  -v $(pwd):/app \
-  barcode-detector \
-  python3 sparkfun/plastic_scanner.py --output /app/logs/csvs/my_plastics.csv
+# Scan HDPE samples — press Enter for each sample, q when done
+python3 sparkfun/plastic_scanner.py -m HDPE
+
+# Then scan PET samples — appended to the same CSV
+python3 sparkfun/plastic_scanner.py -m PET
+
+# Then LDPE, and so on
+python3 sparkfun/plastic_scanner.py -m LDPE
 ```
 
-### Example session
+### Example session (with `--material` flag)
 
 ```
 ============================================================
   PLASTIC NIR SCANNER
 ============================================================
-  Output: logs/csvs/plastic_nir_20260515_143022.csv
+  CSV file : logs/csvs/plastic_nir_dataset.csv
+  Existing : 6 readings (appending)
 ============================================================
 
 Initializing NIR sensor... ready.
 
-Preset materials: HDPE, LDPE, PET, PP, PS, PVC
-Enter material type (or 'q' to finish session): HDPE
-
 [HDPE] Place sample under sensor.
-  Enter = scan | 'n' = next material | 'q' = finish session
+  Enter = scan | 'q' = finish
 
   [HDPE] >
   Scanning... done.  peak=730nm (88.4), temp=28.1°C  [reading #1 saved]
   [HDPE] >
   Scanning... done.  peak=730nm (87.9), temp=28.2°C  [reading #2 saved]
-  [HDPE] > n
-
-Preset materials: HDPE, LDPE, PET, PP, PS, PVC
-Enter material type (or 'q' to finish session): PET
-
-[PET] Place sample under sensor.
-  [PET] >
-  Scanning... done.  peak=810nm (102.3), temp=28.3°C  [reading #3 saved]
-  [PET] > q
+  [HDPE] > q
 
 ============================================================
   SESSION COMPLETE
 ============================================================
-  Total readings : 3
-  Output file    : logs/csvs/plastic_nir_20260515_143022.csv
+  Added this run   : 2 readings
+  Total in file    : 8 readings
+  CSV file         : logs/csvs/plastic_nir_dataset.csv
 
-  Breakdown:
+  This session:
     HDPE       2 readings
-    PET        1 reading
 ============================================================
 ```
 
 ### CSV output format
 
-All materials are written to **one CSV file** per session, with a `Material_Type` column as the label. You can filter and group by material in pandas, Excel, or any data tool.
+All materials are written to **one persistent CSV file**, with a `Material_Type` column as the label. Filter and group by material in pandas, Excel, or any data tool.
 
 | Column | Description |
 |---|---|
