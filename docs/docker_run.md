@@ -95,6 +95,13 @@ Use this when you want to scan different plastic materials and build a labelled 
 python3 sparkfun/plastic_scanner.py --material HDPE
 python3 sparkfun/plastic_scanner.py -m PET
 
+# Take multiple scans per Enter press with --reads / -r
+python3 sparkfun/plastic_scanner.py -m HDPE --reads 3
+python3 sparkfun/plastic_scanner.py -m HDPE -r 3
+
+# Combine flags
+python3 sparkfun/plastic_scanner.py -m HDPE -r 5 --output /path/to/my_dataset.csv
+
 # Interactive — prompts you to type a material name each time
 python3 sparkfun/plastic_scanner.py
 
@@ -112,6 +119,14 @@ docker run -it --rm \
   -v $(pwd):/app \
   barcode-detector \
   python3 sparkfun/plastic_scanner.py --material HDPE
+
+# With --reads: 3 scans per Enter press
+docker run -it --rm \
+  --privileged \
+  --device=/dev/i2c-1 \
+  -v $(pwd):/app \
+  barcode-detector \
+  python3 sparkfun/plastic_scanner.py -m HDPE -r 3
 
 # Interactive
 docker run -it --rm \
@@ -131,32 +146,38 @@ docker run -it --rm \
 # Scan HDPE samples — press Enter for each sample, q when done
 python3 sparkfun/plastic_scanner.py -m HDPE
 
+# Take 3 readings per placement (useful for consistency checks)
+python3 sparkfun/plastic_scanner.py -m HDPE -r 3
+
 # Then scan PET samples — appended to the same CSV
-python3 sparkfun/plastic_scanner.py -m PET
+python3 sparkfun/plastic_scanner.py -m PET -r 3
 
 # Then LDPE, and so on
-python3 sparkfun/plastic_scanner.py -m LDPE
+python3 sparkfun/plastic_scanner.py -m LDPE -r 3
 ```
 
-### Example session (with `--material` flag)
+**When to use `--reads`:** If you want multiple spectral readings of the same physical sample (e.g. to average them or check variance), set `-r 3` or higher. Each reading is saved as a separate row tagged with the same material type. If you only need one clean reading per sample, the default of 1 is fine.
+
+### Example session — single read per trigger (`-m HDPE`)
 
 ```
 ============================================================
   PLASTIC NIR SCANNER
 ============================================================
-  CSV file : logs/csvs/plastic_nir_dataset.csv
-  Existing : 6 readings (appending)
+  CSV file     : logs/csvs/plastic_nir_dataset.csv
+  Reads/trigger: 1
+  Existing     : 6 readings (appending)
 ============================================================
 
 Initializing NIR sensor... ready.
 
 [HDPE] Place sample under sensor.
-  Enter = scan | 'q' = finish
+  Enter = scan (1 reading per trigger) | 'q' = finish
 
   [HDPE] >
-  Scanning... done.  peak=730nm (88.4), temp=28.1°C  [reading #1 saved]
+   Scanning... done.  peak=730nm (88.4), temp=28.1°C  [reading #1 saved]
   [HDPE] >
-  Scanning... done.  peak=730nm (87.9), temp=28.2°C  [reading #2 saved]
+   Scanning... done.  peak=730nm (87.9), temp=28.2°C  [reading #2 saved]
   [HDPE] > q
 
 ============================================================
@@ -168,6 +189,40 @@ Initializing NIR sensor... ready.
 
   This session:
     HDPE       2 readings
+============================================================
+```
+
+### Example session — 3 reads per trigger (`-m HDPE -r 3`)
+
+```
+============================================================
+  PLASTIC NIR SCANNER
+============================================================
+  CSV file     : logs/csvs/plastic_nir_dataset.csv
+  Reads/trigger: 3
+  Existing     : 8 readings (appending)
+============================================================
+
+Initializing NIR sensor... ready.
+
+[HDPE] Place sample under sensor.
+  Enter = scan (3 readings per trigger) | 'q' = finish
+
+  [HDPE] >
+  [1/3] Scanning... done.  peak=730nm (88.4), temp=28.1°C  [reading #1 saved]
+  [2/3] Scanning... done.  peak=730nm (87.6), temp=28.1°C  [reading #2 saved]
+  [3/3] Scanning... done.  peak=730nm (88.1), temp=28.2°C  [reading #3 saved]
+  [HDPE] > q
+
+============================================================
+  SESSION COMPLETE
+============================================================
+  Added this run   : 3 readings
+  Total in file    : 11 readings
+  CSV file         : logs/csvs/plastic_nir_dataset.csv
+
+  This session:
+    HDPE       3 readings
 ============================================================
 ```
 
