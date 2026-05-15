@@ -47,7 +47,14 @@ def get_output_path(custom=None):
     else:
         project_root = Path(__file__).parent.parent
         path = project_root / "logs" / "csvs" / DEFAULT_CSV
-    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        print(f"\nERROR: Cannot create or write to {path.parent}")
+        print("  This usually means the folder was created by Docker (owned by root).")
+        print(f"  Fix it by running from the project root:")
+        print(f"    sudo chown -R $USER:$USER logs/")
+        sys.exit(1)
     return path
 
 
@@ -167,7 +174,17 @@ def main(material_arg=None, output_path=None, reads=1):
     quit_session = False
 
     # 'a' appends; write header only when creating a new file
-    with open(output_path, 'a', newline='') as csv_file:
+    try:
+        csv_file_handle = open(output_path, 'a', newline='')
+    except PermissionError:
+        print(f"\nERROR: Permission denied writing to {output_path}")
+        print("  The file or its parent folder is likely owned by root (created by Docker).")
+        print("  Fix it by running from the project root:")
+        print("    sudo chown -R $USER:$USER logs/")
+        sensor.close()
+        sys.exit(1)
+
+    with csv_file_handle as csv_file:
         writer = csv.writer(csv_file)
         if is_new_file:
             writer.writerow(CSV_HEADERS)
