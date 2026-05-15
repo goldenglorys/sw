@@ -78,7 +78,122 @@ docker run -it --rm \
 
 ---
 
-## 4. Testing Individual Components
+## 4. Plastic NIR Data Collection (No Camera)
+
+Use this when you want to scan different plastic materials and build a labelled dataset — no camera or barcode detection involved.
+
+### How it works
+
+The script is fully interactive and on-demand:
+1. You enter a material type (e.g. `HDPE`)
+2. Place the plastic sample under the sensor
+3. Press **Enter** to take one scan — takes ~1 second
+4. Repeat as many times as you want for that material
+5. Type `n` to switch to a new material type
+6. Type `q` to finish the session
+
+Every scan is saved immediately to a single CSV file tagged with the material name. Nothing is written unless you explicitly trigger a scan, so there is no risk of capturing empty readings.
+
+### Running directly on Jetson (without Docker)
+
+```bash
+# From the project root
+python3 sparkfun/plastic_scanner.py
+
+# Custom output path
+python3 sparkfun/plastic_scanner.py --output /path/to/my_dataset.csv
+```
+
+### Running inside Docker
+
+```bash
+docker run -it --rm \
+  --privileged \
+  --device=/dev/i2c-1 \
+  -v $(pwd):/app \
+  barcode-detector \
+  python3 sparkfun/plastic_scanner.py
+```
+
+> No `--gpus`, no `--device=/dev/video*`, no display flags needed — this script only uses the I2C sensor.  
+> Change `/dev/i2c-1` to `/dev/i2c-0` if that's what `ls /dev/i2c*` shows on your Jetson.
+
+### Custom output path in Docker
+
+```bash
+docker run -it --rm \
+  --privileged \
+  --device=/dev/i2c-1 \
+  -v $(pwd):/app \
+  barcode-detector \
+  python3 sparkfun/plastic_scanner.py --output /app/logs/csvs/my_plastics.csv
+```
+
+### Example session
+
+```
+============================================================
+  PLASTIC NIR SCANNER
+============================================================
+  Output: logs/csvs/plastic_nir_20260515_143022.csv
+============================================================
+
+Initializing NIR sensor... ready.
+
+Preset materials: HDPE, LDPE, PET, PP, PS, PVC
+Enter material type (or 'q' to finish session): HDPE
+
+[HDPE] Place sample under sensor.
+  Enter = scan | 'n' = next material | 'q' = finish session
+
+  [HDPE] >
+  Scanning... done.  peak=730nm (88.4), temp=28.1°C  [reading #1 saved]
+  [HDPE] >
+  Scanning... done.  peak=730nm (87.9), temp=28.2°C  [reading #2 saved]
+  [HDPE] > n
+
+Preset materials: HDPE, LDPE, PET, PP, PS, PVC
+Enter material type (or 'q' to finish session): PET
+
+[PET] Place sample under sensor.
+  [PET] >
+  Scanning... done.  peak=810nm (102.3), temp=28.3°C  [reading #3 saved]
+  [PET] > q
+
+============================================================
+  SESSION COMPLETE
+============================================================
+  Total readings : 3
+  Output file    : logs/csvs/plastic_nir_20260515_143022.csv
+
+  Breakdown:
+    HDPE       2 readings
+    PET        1 reading
+============================================================
+```
+
+### CSV output format
+
+All materials are written to **one CSV file** per session, with a `Material_Type` column as the label. You can filter and group by material in pandas, Excel, or any data tool.
+
+| Column | Description |
+|---|---|
+| `Timestamp` | Date and time of the scan |
+| `Material_Type` | Label you entered (e.g. `HDPE`, `PET`) |
+| `Sample_Number` | Per-material counter (resets if you re-enter the same material later in a session) |
+| `Session_Scan_Number` | Global counter for the whole session |
+| `NIR_410nm` … `NIR_940nm` | 18 calibrated spectral values |
+| `NIR_Temperature` | Sensor temperature at scan time |
+
+Output files are saved to `logs/csvs/plastic_nir_<timestamp>.csv` by default.
+
+### Supported material names
+
+The script shows a preset list (`HDPE`, `LDPE`, `PET`, `PP`, `PS`, `PVC`) but you can type **any name** freely — it is treated as a plain text tag. You can also re-enter a material name later in the same session to continue adding readings to it.
+
+---
+
+## 5. Testing Individual Components
 
 ### Camera auto-detect test
 ```bash
@@ -106,7 +221,7 @@ gst-launch-1.0 nvarguscamerasrc sensor_mode=0 ! \
 
 ---
 
-## 5. Quick Reference
+## 6. Quick Reference
 
 | Situation | What to do |
 |---|---|
