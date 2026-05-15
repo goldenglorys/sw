@@ -86,47 +86,54 @@ Use this when you want to scan different plastic materials and build a labelled 
 
 - All runs append to **one persistent CSV file** (`logs/csvs/plastic_nir_dataset.csv`). Every time you run the script, new readings are added to the same file — nothing is overwritten.
 - Scans are **on-demand**: press **Enter** when the sample is ready. Nothing is saved unless you trigger it, so empty/air readings are impossible.
-- You can supply the material type via the `--material` flag to skip any prompts, or run interactively and type the material name each session.
+- You can supply the material type via `--material` and an optional free-text label via `--label` to skip all prompts, or run interactively and type both each session.
 
 ### Running directly on Jetson (without Docker)
 
 ```bash
-# Non-interactive — material tag supplied upfront (recommended workflow)
-python3 sparkfun/plastic_scanner.py --material HDPE
-python3 sparkfun/plastic_scanner.py -m PET
+# Material only
+python3 sparkfun/plastic_scanner.py -m HDPE
 
-# Take multiple scans per Enter press with --reads / -r
-python3 sparkfun/plastic_scanner.py -m HDPE --reads 3
-python3 sparkfun/plastic_scanner.py -m HDPE -r 3
+# Material + label
+python3 sparkfun/plastic_scanner.py -m HDPE --label clean_bottle
+python3 sparkfun/plastic_scanner.py -m HDPE -l dirty_cap
 
-# Combine flags
-python3 sparkfun/plastic_scanner.py -m HDPE -r 5 --output /path/to/my_dataset.csv
+# Material + label + multiple reads per trigger
+python3 sparkfun/plastic_scanner.py -m HDPE -l clean -r 3
 
-# Interactive — prompts you to type a material name each time
+# All flags together
+python3 sparkfun/plastic_scanner.py -m HDPE -l clean_bottle -r 3 --output /path/to/my_dataset.csv
+
+# Interactive — prompts for material and label each session
 python3 sparkfun/plastic_scanner.py
-
-# Custom CSV path (still appends if the file already exists)
-python3 sparkfun/plastic_scanner.py -m HDPE --output /path/to/my_dataset.csv
 ```
 
 ### Running inside Docker
 
 ```bash
-# Non-interactive (recommended)
+# Material only
 docker run -it --rm \
   --privileged \
   --device=/dev/i2c-1 \
   -v $(pwd):/app \
   barcode-detector \
-  python3 sparkfun/plastic_scanner.py --material HDPE
+  python3 sparkfun/plastic_scanner.py -m HDPE
 
-# With --reads: 3 scans per Enter press
+# Material + label
 docker run -it --rm \
   --privileged \
   --device=/dev/i2c-1 \
   -v $(pwd):/app \
   barcode-detector \
-  python3 sparkfun/plastic_scanner.py -m HDPE -r 3
+  python3 sparkfun/plastic_scanner.py -m HDPE -l clean_bottle
+
+# Material + label + 3 reads per trigger
+docker run -it --rm \
+  --privileged \
+  --device=/dev/i2c-1 \
+  -v $(pwd):/app \
+  barcode-detector \
+  python3 sparkfun/plastic_scanner.py -m HDPE -l clean -r 3
 
 # Interactive
 docker run -it --rm \
@@ -143,20 +150,22 @@ docker run -it --rm \
 ### Typical workflow for collecting a full dataset
 
 ```bash
-# Scan HDPE samples — press Enter for each sample, q when done
-python3 sparkfun/plastic_scanner.py -m HDPE
+# Scan clean HDPE bottles — 3 reads per placement
+python3 sparkfun/plastic_scanner.py -m HDPE -l clean_bottle -r 3
 
-# Take 3 readings per placement (useful for consistency checks)
-python3 sparkfun/plastic_scanner.py -m HDPE -r 3
+# Scan dirty HDPE caps (same material, different label)
+python3 sparkfun/plastic_scanner.py -m HDPE -l dirty_cap -r 3
 
-# Then scan PET samples — appended to the same CSV
-python3 sparkfun/plastic_scanner.py -m PET -r 3
+# Then PET samples
+python3 sparkfun/plastic_scanner.py -m PET -l clean -r 3
 
 # Then LDPE, and so on
-python3 sparkfun/plastic_scanner.py -m LDPE -r 3
+python3 sparkfun/plastic_scanner.py -m LDPE -l clean -r 3
 ```
 
-**When to use `--reads`:** If you want multiple spectral readings of the same physical sample (e.g. to average them or check variance), set `-r 3` or higher. Each reading is saved as a separate row tagged with the same material type. If you only need one clean reading per sample, the default of 1 is fine.
+**When to use `--label`:** Use it to distinguish samples of the same material that differ in condition, shape, or origin — e.g. `clean_bottle` vs `dirty_cap` both being HDPE. The label is a free-text field so you can write anything. If you don't need it, just omit the flag or press Enter to skip the prompt.
+
+**When to use `--reads`:** If you want multiple spectral readings of the same physical placement (e.g. to average or check variance later), set `-r 3` or higher. Each reading is a separate row in the CSV. Default is 1.
 
 ### Example session — single read per trigger (`-m HDPE`)
 
@@ -228,18 +237,19 @@ Initializing NIR sensor... ready.
 
 ### CSV output format
 
-All materials are written to **one persistent CSV file**, with a `Material_Type` column as the label. Filter and group by material in pandas, Excel, or any data tool.
+All materials are written to **one persistent CSV file**. Filter and group by `Material_Type` or `Label` in pandas, Excel, or any data tool.
 
 | Column | Description |
 |---|---|
 | `Timestamp` | Date and time of the scan |
-| `Material_Type` | Label you entered (e.g. `HDPE`, `PET`) |
-| `Sample_Number` | Per-material counter (resets if you re-enter the same material later in a session) |
-| `Session_Scan_Number` | Global counter for the whole session |
+| `Material_Type` | Material tag (e.g. `HDPE`, `PET`) — from `--material` or interactive prompt |
+| `Label` | Free-text label (e.g. `clean_bottle`, `dirty_cap`) — from `--label` or interactive prompt, blank if skipped |
+| `Sample_Number` | Per-material counter for this session |
+| `Session_Scan_Number` | Global counter for the whole run |
 | `NIR_410nm` … `NIR_940nm` | 18 calibrated spectral values |
 | `NIR_Temperature` | Sensor temperature at scan time |
 
-Output files are saved to `logs/csvs/plastic_nir_<timestamp>.csv` by default.
+Output is saved to `logs/csvs/plastic_nir_dataset.csv` by default (appended across all runs).
 
 ### Supported material names
 
