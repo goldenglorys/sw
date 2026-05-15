@@ -12,6 +12,9 @@ Usage:
     python sparkfun/plastic_scanner.py --material HDPE
     python sparkfun/plastic_scanner.py -m PET
 
+    # Take 3 readings per Enter press
+    python sparkfun/plastic_scanner.py -m HDPE --reads 3
+
     # Custom CSV path (still appends if file exists)
     python sparkfun/plastic_scanner.py -m HDPE --output /path/to/dataset.csv
 """
@@ -67,20 +70,22 @@ def prompt_material():
         print("  Material name cannot be empty.")
 
 
-def scan_loop(sensor, material, session_count, writer, csv_file, fixed_material=False):
+def scan_loop(sensor, material, session_count, writer, csv_file, fixed_material=False, reads=1):
     """
     Interactive scan loop for one material type.
 
     fixed_material=True means material was passed via --material flag:
       'n' exits instead of switching, since the next material gets its own command.
+    reads: number of scans taken per Enter press (default 1).
 
-    Returns (new_session_count, should_quit).
+    Returns (new_session_count, new_sample_num, should_quit).
     """
     print(f"\n[{material}] Place sample under sensor.")
+    reads_label = f"{reads} reading{'s' if reads > 1 else ''} per trigger"
     if fixed_material:
-        print("  Enter = scan | 'q' = finish\n")
+        print(f"  Enter = scan ({reads_label}) | 'q' = finish\n")
     else:
-        print("  Enter = scan | 'n' = next material | 'q' = finish\n")
+        print(f"  Enter = scan ({reads_label}) | 'n' = next material | 'q' = finish\n")
 
     sample_num = 0
 
@@ -101,37 +106,39 @@ def scan_loop(sensor, material, session_count, writer, csv_file, fixed_material=
                 print("  Enter=scan | n=next material | q=finish")
             continue
 
-        # Blank Enter → take one scan
-        print("  Scanning...", end=" ", flush=True)
-        try:
-            data = sensor.take_measurement()
-        except Exception as e:
-            print(f"ERROR: {e}")
-            continue
+        # Blank Enter → take `reads` scans in sequence
+        for i in range(reads):
+            prefix = f"  [{i+1}/{reads}]" if reads > 1 else "  "
+            print(f"{prefix} Scanning...", end=" ", flush=True)
+            try:
+                data = sensor.take_measurement()
+            except Exception as e:
+                print(f"ERROR: {e}")
+                break
 
-        sample_num += 1
-        session_count += 1
+            sample_num += 1
+            session_count += 1
 
-        iso_ts = datetime.fromtimestamp(data['timestamp']).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-        row = (
-            [iso_ts, material, sample_num, session_count]
-            + data['values']
-            + [data['temperature']]
-        )
-        writer.writerow(row)
-        csv_file.flush()
+            iso_ts = datetime.fromtimestamp(data['timestamp']).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            row = (
+                [iso_ts, material, sample_num, session_count]
+                + data['values']
+                + [data['temperature']]
+            )
+            writer.writerow(row)
+            csv_file.flush()
 
-        peak_idx = data['values'].index(max(data['values']))
-        peak_wl = NIRSensor.WAVELENGTHS[peak_idx]
-        print(
-            f"done.  "
-            f"peak={peak_wl}nm ({data['values'][peak_idx]:.1f}), "
-            f"temp={data['temperature']:.1f}°C  "
-            f"[reading #{session_count} saved]"
-        )
+            peak_idx = data['values'].index(max(data['values']))
+            peak_wl = NIRSensor.WAVELENGTHS[peak_idx]
+            print(
+                f"done.  "
+                f"peak={peak_wl}nm ({data['values'][peak_idx]:.1f}), "
+                f"temp={data['temperature']:.1f}°C  "
+                f"[reading #{session_count} saved]"
+            )
 
 
-def main(material_arg=None, output_path=None):
+def main(material_arg=None, output_path=None, reads=1):
     output_path = get_output_path(output_path)
     existing_rows = count_existing_rows(output_path)
     is_new_file = existing_rows == 0
@@ -140,6 +147,7 @@ def main(material_arg=None, output_path=None):
     print("  PLASTIC NIR SCANNER")
     print("=" * 60)
     print(f"  CSV file : {output_path}")
+    print(f"  Reads/trigger: {reads}")
     if existing_rows:
         print(f"  Existing : {existing_rows} readings (appending)")
     else:
@@ -169,7 +177,7 @@ def main(material_arg=None, output_path=None):
                 # Non-interactive: material provided via --material flag
                 material = material_arg.upper()
                 session_count, sample_num, _ = scan_loop(
-                    sensor, material, session_count, writer, csv_file, fixed_material=True
+                    sensor, material, session_count, writer, csv_file, fixed_material=True, reads=reads
                 )
                 material_counts[material] = sample_num
             else:
@@ -179,7 +187,7 @@ def main(material_arg=None, output_path=None):
                     if material is None:
                         break
                     session_count, sample_num, quit_session = scan_loop(
-                        sensor, material, session_count, writer, csv_file, fixed_material=False
+                        sensor, material, session_count, writer, csv_file, fixed_material=False, reads=reads
                     )
                     material_counts[material] = material_counts.get(material, 0) + sample_num
 
@@ -210,8 +218,9 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "examples:\n"
-            "  python sparkfun/plastic_scanner.py              # interactive\n"
-            "  python sparkfun/plastic_scanner.py -m HDPE      # scan HDPE directly\n"
+            "  python sparkfun/plastic_scanner.py                   # interactive\n"
+            "  python sparkfun/plastic_scanner.py -m HDPE           # scan HDPE directly\n"
+            "  python sparkfun/plastic_scanner.py -m HDPE -r 3      # 3 scans per Enter\n"
             "  python sparkfun/plastic_scanner.py -m PET -o /data/plastics.csv"
         )
     )
@@ -221,9 +230,16 @@ if __name__ == "__main__":
         help="Material type tag (e.g. HDPE, PET). Skips the interactive prompt."
     )
     parser.add_argument(
+        "--reads", "-r",
+        metavar="N",
+        type=int,
+        default=1,
+        help="Number of scans taken per Enter press (default: 1)"
+    )
+    parser.add_argument(
         "--output", "-o",
         metavar="FILE",
         help=f"CSV path (default: logs/csvs/{DEFAULT_CSV})"
     )
     args = parser.parse_args()
-    main(material_arg=args.material, output_path=args.output)
+    main(material_arg=args.material, output_path=args.output, reads=args.reads)
