@@ -12,8 +12,12 @@ Usage:
     python sparkfun/plastic_scanner.py --material HDPE
     python sparkfun/plastic_scanner.py -m PET
 
+    # Add a label (e.g. condition, sample description)
+    python sparkfun/plastic_scanner.py -m HDPE --label clean_bottle
+    python sparkfun/plastic_scanner.py -m HDPE -l dirty_cap
+
     # Take 3 readings per Enter press
-    python sparkfun/plastic_scanner.py -m HDPE --reads 3
+    python sparkfun/plastic_scanner.py -m HDPE -l clean -r 3
 
     # Custom CSV path (still appends if file exists)
     python sparkfun/plastic_scanner.py -m HDPE --output /path/to/dataset.csv
@@ -37,7 +41,7 @@ DEFAULT_CSV = "plastic_nir_dataset.csv"
 AUTO_QUIT_SECONDS = 3  # countdown after reads complete in fixed-material mode
 
 CSV_HEADERS = (
-    ["Timestamp", "Material_Type", "Sample_Number", "Session_Scan_Number"]
+    ["Timestamp", "Material_Type", "Label", "Sample_Number", "Session_Scan_Number"]
     + [f"NIR_{wl}nm" for wl in NIRSensor.WAVELENGTHS]
     + ["NIR_Temperature"]
 )
@@ -94,6 +98,11 @@ def prompt_material():
         print("  Material name cannot be empty.")
 
 
+def prompt_label():
+    raw = input("Enter label (e.g. clean_bottle, dirty_cap) or press Enter to skip: ").strip()
+    return raw if raw else ""
+
+
 def input_with_timeout(prompt, timeout):
     """
     Show prompt and wait up to `timeout` seconds for a line of input.
@@ -112,7 +121,7 @@ def input_with_timeout(prompt, timeout):
         return input().strip().lower()
 
 
-def take_batch(sensor, material, sample_num, session_count, reads, writer, csv_file):
+def take_batch(sensor, material, label, sample_num, session_count, reads, writer, csv_file):
     """
     Fire `reads` sequential scans for `material`.
     Returns (updated_sample_num, updated_session_count, had_error).
@@ -133,7 +142,7 @@ def take_batch(sensor, material, sample_num, session_count, reads, writer, csv_f
 
         iso_ts = datetime.fromtimestamp(data['timestamp']).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         row = (
-            [iso_ts, material, sample_num, session_count]
+            [iso_ts, material, label, sample_num, session_count]
             + data['values']
             + [data['temperature']]
         )
@@ -152,7 +161,7 @@ def take_batch(sensor, material, sample_num, session_count, reads, writer, csv_f
     return sample_num, session_count, had_error
 
 
-def scan_loop_fixed(sensor, material, session_count, writer, csv_file, reads):
+def scan_loop_fixed(sensor, material, label, session_count, writer, csv_file, reads):
     """
     Scan loop when material is provided via --material flag.
     After each batch completes, auto-quits after AUTO_QUIT_SECONDS unless
@@ -160,7 +169,8 @@ def scan_loop_fixed(sensor, material, session_count, writer, csv_file, reads):
     Returns (new_session_count, new_sample_num).
     """
     reads_label = f"{reads} reading{'s' if reads > 1 else ''} per trigger"
-    print(f"\n[{material}] Place sample under sensor.")
+    label_display = f", label={label}" if label else ""
+    print(f"\n[{material}{label_display}] Place sample under sensor.")
     print(f"  Enter = scan ({reads_label}) | 'q' = quit\n")
 
     sample_num = 0
@@ -193,20 +203,21 @@ def scan_loop_fixed(sensor, material, session_count, writer, csv_file, reads):
             continue
 
         sample_num, session_count, _ = take_batch(
-            sensor, material, sample_num, session_count, reads, writer, csv_file
+            sensor, material, label, sample_num, session_count, reads, writer, csv_file
         )
 
     return session_count, sample_num
 
 
-def scan_loop_interactive(sensor, material, session_count, writer, csv_file, reads):
+def scan_loop_interactive(sensor, material, label, session_count, writer, csv_file, reads):
     """
     Scan loop for interactive mode (no --material flag).
     Keeps scanning until 'n' (next material) or 'q' (quit).
     Returns (new_session_count, new_sample_num, should_quit).
     """
     reads_label = f"{reads} reading{'s' if reads > 1 else ''} per trigger"
-    print(f"\n[{material}] Place sample under sensor.")
+    label_display = f", label={label}" if label else ""
+    print(f"\n[{material}{label_display}] Place sample under sensor.")
     print(f"  Enter = scan ({reads_label}) | 'n' = next material | 'q' = finish\n")
 
     sample_num = 0
@@ -226,11 +237,11 @@ def scan_loop_interactive(sensor, material, session_count, writer, csv_file, rea
             continue
 
         sample_num, session_count, _ = take_batch(
-            sensor, material, sample_num, session_count, reads, writer, csv_file
+            sensor, material, label, sample_num, session_count, reads, writer, csv_file
         )
 
 
-def main(material_arg=None, output_path=None, reads=1):
+def main(material_arg=None, label_arg=None, output_path=None, reads=1):
     output_path = get_output_path(output_path)
     existing_rows = count_existing_rows(output_path)
     is_new_file = existing_rows == 0
@@ -240,6 +251,8 @@ def main(material_arg=None, output_path=None, reads=1):
     print("=" * 60)
     print(f"  CSV file     : {output_path}")
     print(f"  Reads/trigger: {reads}")
+    if label_arg:
+        print(f"  Label        : {label_arg}")
     if existing_rows:
         print(f"  Existing     : {existing_rows} readings (appending)")
     else:
@@ -279,8 +292,9 @@ def main(material_arg=None, output_path=None, reads=1):
         try:
             if material_arg:
                 material = material_arg.upper()
+                label = label_arg if label_arg is not None else prompt_label()
                 session_count, sample_num = scan_loop_fixed(
-                    sensor, material, session_count, writer, csv_file, reads
+                    sensor, material, label, session_count, writer, csv_file, reads
                 )
                 material_counts[material] = sample_num
             else:
@@ -288,8 +302,9 @@ def main(material_arg=None, output_path=None, reads=1):
                     material = prompt_material()
                     if material is None:
                         break
+                    label = label_arg if label_arg is not None else prompt_label()
                     session_count, sample_num, quit_session = scan_loop_interactive(
-                        sensor, material, session_count, writer, csv_file, reads
+                        sensor, material, label, session_count, writer, csv_file, reads
                     )
                     material_counts[material] = material_counts.get(material, 0) + sample_num
 
@@ -320,9 +335,10 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "examples:\n"
-            "  python sparkfun/plastic_scanner.py                   # interactive\n"
-            "  python sparkfun/plastic_scanner.py -m HDPE           # scan HDPE, auto-quit after\n"
-            "  python sparkfun/plastic_scanner.py -m HDPE -r 3      # 3 scans per Enter\n"
+            "  python sparkfun/plastic_scanner.py                        # interactive\n"
+            "  python sparkfun/plastic_scanner.py -m HDPE                # scan HDPE, auto-quit\n"
+            "  python sparkfun/plastic_scanner.py -m HDPE -l clean_cap   # with label\n"
+            "  python sparkfun/plastic_scanner.py -m HDPE -l dirty -r 3  # label + 3 reads\n"
             "  python sparkfun/plastic_scanner.py -m PET -o /data/plastics.csv"
         )
     )
@@ -330,6 +346,13 @@ if __name__ == "__main__":
         "--material", "-m",
         metavar="TYPE",
         help="Material type tag (e.g. HDPE, PET). Skips the interactive prompt."
+    )
+    parser.add_argument(
+        "--label", "-l",
+        metavar="LABEL",
+        default=None,
+        help="Free-text label for this scan (e.g. clean_bottle, dirty_cap). "
+             "Prompted interactively if not supplied."
     )
     parser.add_argument(
         "--reads", "-r",
@@ -344,4 +367,4 @@ if __name__ == "__main__":
         help=f"CSV path (default: logs/csvs/{DEFAULT_CSV})"
     )
     args = parser.parse_args()
-    main(material_arg=args.material, output_path=args.output, reads=args.reads)
+    main(material_arg=args.material, label_arg=args.label, output_path=args.output, reads=args.reads)
