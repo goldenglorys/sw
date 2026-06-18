@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Experiment outputs (keep the directory, ignore generated artifacts)
+results/*.json
+results/*.jsonl
+results/*.png
+!results/.gitkeep
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
