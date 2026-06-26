@@ -4,6 +4,7 @@ Platform detection and camera source configuration.
 Auto-detects USB vs CSI camera — works out of the box.
 """
 import os
+import sys
 import cv2
 
 
@@ -43,18 +44,34 @@ def detect_platform():
 
 def _find_usb_camera():
     """
-    Scan /dev/video* and return the first index that actually opens
-    and returns a frame. Returns 0 as fallback even if nothing found.
+    Scan for a working camera and return its index.
+    On macOS uses AVFoundation probing (no /dev/video* nodes).
+    On Linux scans /dev/video* with V4L2.
+    Returns 0 as fallback if nothing found.
     """
-    import glob
+    is_macos = sys.platform == "darwin"
 
+    if is_macos:
+        backend = cv2.CAP_AVFOUNDATION
+        for idx in range(4):
+            cap = cv2.VideoCapture(idx, backend)
+            if cap.isOpened():
+                ret, _ = cap.read()
+                cap.release()
+                if ret:
+                    print(f"Auto-detected camera at index {idx} (AVFoundation)")
+                    return idx
+            cap.release()
+        print("Could not verify any AVFoundation camera, defaulting to index 0")
+        return 0
+
+    import glob
     devices = sorted(glob.glob("/dev/video*"))
     if not devices:
         print("No /dev/video* devices found, defaulting to index 0")
         return 0
 
     for dev in devices:
-        # Extract index number from e.g. /dev/video0
         try:
             idx = int(dev.replace("/dev/video", ""))
         except ValueError:
@@ -136,6 +153,10 @@ def get_opencv_backend(platform_type=None):
         source = get_camera_source(platform_type)
         if isinstance(source, str):  # GStreamer pipeline
             return cv2.CAP_GSTREAMER
+
+    if sys.platform == "darwin":
+        return cv2.CAP_AVFOUNDATION
+
     return cv2.CAP_V4L2  # works for USB on Linux; OpenCV falls back gracefully
 
 

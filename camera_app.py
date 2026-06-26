@@ -15,7 +15,8 @@ from sparkfun.sensor_thread import NIRSensorThread
 import sys
 sys.stdout.reconfigure(encoding='utf-8') if hasattr(sys.stdout, 'reconfigure') else None
 
-os.environ["OPENCV_VIDEOIO_BACKEND"] = "opencv_egl"
+if platform_module.system() != "Darwin":
+    os.environ["OPENCV_VIDEOIO_BACKEND"] = "opencv_egl"
 
 
 class CameraDetector:
