@@ -60,16 +60,17 @@ NIR_WAVELENGTHS = [
 NIR_COLS = ["NIR_{}nm".format(wl) for wl in NIR_WAVELENGTHS]
 
 # name -> (backend, path)
-# onnx  : version-independent ONNX model (RF, SVM, PCA-LDA)
-# numpy : pure-numpy weight matrices (PLS-DA) -- no runtime dependency at all
-# keras : TensorFlow SavedModel (MLP, CNN)
+# rf_npz    : RF tree arrays for pure numpy traversal (no runtime dep)
+# plsda_npz : PLS-DA weight matrices for pure numpy inference (no runtime dep)
+# onnx      : ONNX model via onnxruntime (SVM, PCA-LDA) -- needs pip3 install onnxruntime==1.10.0
+# keras     : TensorFlow SavedModel (MLP, CNN)
 MODEL_REGISTRY = {
-    "rf":     ("onnx",  MODEL_DIR / "arch1_rf.onnx"),
-    "svm":    ("onnx",  MODEL_DIR / "arch1_svm.onnx"),
-    "plsda":  ("numpy", MODEL_DIR / "arch2_plsda_matrices.npz"),
-    "pcalda": ("onnx",  MODEL_DIR / "arch2_pcalda.onnx"),
-    "mlp":    ("keras", MODEL_DIR / "arch3_mlp.keras"),
-    "cnn":    ("keras", MODEL_DIR / "arch3_cnn.keras"),
+    "rf":     ("rf_npz",    MODEL_DIR / "arch1_rf_trees.npz"),
+    "svm":    ("onnx",      MODEL_DIR / "arch1_svm.onnx"),
+    "plsda":  ("plsda_npz", MODEL_DIR / "arch2_plsda_matrices.npz"),
+    "pcalda": ("onnx",      MODEL_DIR / "arch2_pcalda.onnx"),
+    "mlp":    ("keras",     MODEL_DIR / "arch3_mlp.keras"),
+    "cnn":    ("keras",     MODEL_DIR / "arch3_cnn.keras"),
 }
 
 AUTO_QUIT_SECONDS = 3   # countdown after reads complete (fixed-material mode)
@@ -92,8 +93,9 @@ def load_models(keys):
             import onnxruntime as ort
         except ImportError:
             print("ERROR: onnxruntime not installed.")
-            print("  Run: pip3 install onnxruntime==1.10.0")
-            raise
+            print("  Models needing it (svm, pcalda) will be skipped.")
+            print("  To install: pip3 install onnxruntime==1.10.0")
+            ort = None
     else:
         ort = None
 
@@ -113,9 +115,12 @@ def load_models(keys):
             print("  WARNING: {} model not found at {} -- skipping.".format(name, path))
             continue
         if backend == "onnx":
+            if ort is None:
+                print("  SKIP: {} needs onnxruntime (not installed).".format(name))
+                continue
             loaded[name] = ("onnx", ort.InferenceSession(str(path)))
-        elif backend == "numpy":
-            loaded[name] = ("numpy", np.load(str(path)))
+        elif backend in ("rf_npz", "plsda_npz"):
+            loaded[name] = (backend, np.load(str(path)))
         else:
             loaded[name] = ("keras", _keras.models.load_model(path))
         print("  Loaded: {:8s}  ({})".format(name, backend))
@@ -150,20 +155,44 @@ def run_models(x_snv, models, le):
         if backend == "onnx":
             inp  = {model.get_inputs()[0].name: x_snv.astype(np.float32)}
             out  = model.run(None, inp)
-            idx  = int(out[0][0])       # out[0] = label array shape (1,)
+            idx  = int(out[0][0])
             conf = None
             if len(out) > 1 and out[1] is not None:
-                probs = np.array(out[1][0])  # out[1] = probability array (1, n_classes)
+                probs = np.array(out[1][0])
                 conf  = float(probs[idx])
 
-        elif backend == "numpy":
+        elif backend == "rf_npz":
+            # Random Forest: vectorised tree traversal across all 200 trees
+            mats     = model
+            CL       = mats["children_left"]
+            CR       = mats["children_right"]
+            FT       = mats["feature"]
+            THR      = mats["threshold"]
+            VAL      = mats["value"]
+            n_trees  = CL.shape[0]
+            tidx     = np.arange(n_trees)
+            nodes    = np.zeros(n_trees, dtype=np.intp)
+            x        = x_snv[0]
+            for _ in range(20):            # bound by max tree depth (actual: 15)
+                lc      = CL[tidx, nodes]
+                is_leaf = lc == -1
+                if is_leaf.all():
+                    break
+                go_left = x[FT[tidx, nodes]] <= THR[tidx, nodes]
+                new_n   = np.where(go_left, CL[tidx, nodes], CR[tidx, nodes])
+                nodes   = np.where(is_leaf, nodes, new_n)
+            votes = VAL[tidx, nodes, :].sum(axis=0)
+            idx   = int(np.argmax(votes))
+            conf  = None
+
+        elif backend == "plsda_npz":
             # PLS-DA: pure numpy inference from extracted weight matrices
             mats  = model
             X_pca = (x_snv - mats["pca_mean"]) @ mats["pca_components"].T
             X_c   = X_pca - mats["pls_x_mean"]
             Y_hat = X_c @ mats["pls_coef"].T + mats["pls_intercept"]
             idx   = int(np.argmax(Y_hat, axis=1)[0])
-            conf  = None   # PLS-DA regression scores are not calibrated probabilities
+            conf  = None
 
         else:  # keras
             x_in = x_snv.astype(np.float32)
