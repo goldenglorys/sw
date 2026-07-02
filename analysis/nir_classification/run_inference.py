@@ -60,17 +60,18 @@ NIR_WAVELENGTHS = [
 NIR_COLS = ["NIR_{}nm".format(wl) for wl in NIR_WAVELENGTHS]
 
 # name -> (backend, path)
-# rf_npz    : RF tree arrays for pure numpy traversal (no runtime dep)
-# plsda_npz : PLS-DA weight matrices for pure numpy inference (no runtime dep)
-# onnx      : ONNX model via onnxruntime (SVM, PCA-LDA) -- needs pip3 install onnxruntime==1.10.0
-# keras     : TensorFlow SavedModel (MLP, CNN)
+# rf_npz     : RF tree arrays for vectorised numpy traversal   (no runtime dep)
+# svm_npz    : SVM RBF+OVO matrices for pure numpy inference   (no runtime dep)
+# plsda_npz  : PLS-DA weight matrices for pure numpy inference (no runtime dep)
+# pcalda_npz : PCA-LDA weight matrices for pure numpy inference(no runtime dep)
+# keras      : TensorFlow SavedModel (MLP, CNN) -- needs TensorFlow
 MODEL_REGISTRY = {
-    "rf":     ("rf_npz",    MODEL_DIR / "arch1_rf_trees.npz"),
-    "svm":    ("onnx",      MODEL_DIR / "arch1_svm.onnx"),
-    "plsda":  ("plsda_npz", MODEL_DIR / "arch2_plsda_matrices.npz"),
-    "pcalda": ("onnx",      MODEL_DIR / "arch2_pcalda.onnx"),
-    "mlp":    ("keras",     MODEL_DIR / "arch3_mlp.keras"),
-    "cnn":    ("keras",     MODEL_DIR / "arch3_cnn.keras"),
+    "rf":     ("rf_npz",     MODEL_DIR / "arch1_rf_trees.npz"),
+    "svm":    ("svm_npz",    MODEL_DIR / "arch1_svm_numpy.npz"),
+    "plsda":  ("plsda_npz",  MODEL_DIR / "arch2_plsda_matrices.npz"),
+    "pcalda": ("pcalda_npz", MODEL_DIR / "arch2_pcalda_matrices.npz"),
+    "mlp":    ("keras",      MODEL_DIR / "arch3_mlp.keras"),
+    "cnn":    ("keras",      MODEL_DIR / "arch3_cnn.keras"),
 }
 
 AUTO_QUIT_SECONDS = 3   # countdown after reads complete (fixed-material mode)
@@ -85,23 +86,16 @@ def load_models(keys):
 
     loaded = {}
 
-    onnx_needed  = any(MODEL_REGISTRY[k][0] == "onnx"  for k in keys if k in MODEL_REGISTRY)
     keras_needed = any(MODEL_REGISTRY[k][0] == "keras" for k in keys if k in MODEL_REGISTRY)
 
-    if onnx_needed:
-        try:
-            import onnxruntime as ort
-        except ImportError:
-            print("ERROR: onnxruntime not installed.")
-            print("  Models needing it (svm, pcalda) will be skipped.")
-            print("  To install: pip3 install onnxruntime==1.10.0")
-            ort = None
-    else:
-        ort = None
-
     if keras_needed:
-        import tensorflow as tf  # lazy import - TF startup is slow
-        _keras = tf.keras
+        try:
+            import tensorflow as tf  # lazy import -- TF startup is slow
+            _keras = tf.keras
+        except ImportError:
+            print("WARNING: tensorflow not installed -- mlp and cnn will be skipped.")
+            print("  TF is only available on Jetson via the NVIDIA Docker container.")
+            _keras = None
     else:
         _keras = None
 
@@ -114,14 +108,12 @@ def load_models(keys):
         if not path.exists():
             print("  WARNING: {} model not found at {} -- skipping.".format(name, path))
             continue
-        if backend == "onnx":
-            if ort is None:
-                print("  SKIP: {} needs onnxruntime (not installed).".format(name))
-                continue
-            loaded[name] = ("onnx", ort.InferenceSession(str(path)))
-        elif backend in ("rf_npz", "plsda_npz"):
+        if backend in ("rf_npz", "svm_npz", "plsda_npz", "pcalda_npz"):
             loaded[name] = (backend, np.load(str(path)))
-        else:
+        elif backend == "keras":
+            if _keras is None:
+                print("  SKIP: {} needs tensorflow (not installed).".format(name))
+                continue
             loaded[name] = ("keras", _keras.models.load_model(path))
         print("  Loaded: {:8s}  ({})".format(name, backend))
     return loaded
@@ -185,6 +177,33 @@ def run_models(x_snv, models, le):
             idx   = int(np.argmax(votes))
             conf  = None
 
+        elif backend == "svm_npz":
+            # SVM RBF kernel + OVO voting in pure numpy
+            mats     = model
+            SVs      = mats["support_vectors"]   # (n_sv, 18)
+            dc       = mats["dual_coef"]          # (n_classes-1, n_sv)
+            ic       = mats["intercept"]          # (n_clf,)
+            gam      = float(mats["gamma"][0])
+            n_sup    = mats["n_support"].astype(int)
+            n_cls    = int(mats["n_classes"][0])
+            sv_start = np.concatenate([[0], np.cumsum(n_sup[:-1])]).astype(int)
+            row      = x_snv[0]
+            diff     = row - SVs
+            K        = np.exp(-gam * (diff ** 2).sum(axis=1))
+            votes    = np.zeros(n_cls)
+            clf_idx  = 0
+            for ci in range(n_cls):
+                for cj in range(ci + 1, n_cls):
+                    i_s = sv_start[ci]; i_e = i_s + n_sup[ci]
+                    j_s = sv_start[cj]; j_e = j_s + n_sup[cj]
+                    dec = (np.dot(dc[cj - 1, i_s:i_e], K[i_s:i_e]) +
+                           np.dot(dc[ci,     j_s:j_e], K[j_s:j_e]) +
+                           ic[clf_idx])
+                    votes[ci if dec > 0 else cj] += 1
+                    clf_idx += 1
+            idx  = int(np.argmax(votes))
+            conf = None
+
         elif backend == "plsda_npz":
             # PLS-DA: pure numpy inference from extracted weight matrices
             mats  = model
@@ -192,6 +211,14 @@ def run_models(x_snv, models, le):
             X_c   = X_pca - mats["pls_x_mean"]
             Y_hat = X_c @ mats["pls_coef"].T + mats["pls_intercept"]
             idx   = int(np.argmax(Y_hat, axis=1)[0])
+            conf  = None
+
+        elif backend == "pcalda_npz":
+            # PCA-LDA: pure numpy inference from extracted weight matrices
+            mats  = model
+            X_pca = (x_snv - mats["pca_mean"]) @ mats["pca_components"].T
+            dec   = X_pca @ mats["lda_coef"].T + mats["lda_intercept"]
+            idx   = int(np.argmax(dec, axis=1)[0])
             conf  = None
 
         else:  # keras
