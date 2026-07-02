@@ -374,6 +374,78 @@ print(material)   # e.g. "PET"
 
 ---
 
+## Step 5 — Live Inference on Jetson Nano
+
+```bash
+python analysis/nir_classification/run_inference.py --model all
+```
+
+**All flags:**
+
+| Flag | Short | Default | Description |
+| --- | --- | --- | --- |
+| `--model` | `-M` | `all` | One or more of: `rf svm plsda pcalda mlp cnn all` |
+| `--material` | `-m` | `UNKNOWN` | Ground-truth material type (stored in CSV for later eval) |
+| `--label` | `-l` | _(blank)_ | Free-text label e.g. `clean_bottle` |
+| `--reads` | `-r` | `1` | Readings per Enter press |
+| `--output` | `-o` | `logs/csvs/inference_results.csv` | CSV path |
+| `--mock` | | | Synthetic data — runs without sensor hardware |
+
+**Examples:**
+
+```bash
+# All models, unknown material (just exploring)
+python analysis/nir_classification/run_inference.py --model all
+
+# RF and SVM only, ground truth supplied, 3 reads per trigger
+python analysis/nir_classification/run_inference.py --model rf svm -m PET -l clean -r 3
+
+# Test on laptop without sensor
+python analysis/nir_classification/run_inference.py --model all --mock -m HDPE
+
+# Custom output file
+python analysis/nir_classification/run_inference.py --model all -m PP -o /data/field_run1.csv
+```
+
+**What the console shows per reading:**
+
+```text
+  [1/2] Scanning... done.  peak=730nm  temp=28.1°C
+          rf=PET(94%)  svm=PET(97%)  pcalda=PET(100%)  mlp=PET(88%)  cnn=PET(91%)
+```
+
+**Output CSV schema:**
+
+The CSV is structurally identical to the training dataset — same `NIR_*` columns in the same order — with prediction columns appended for each loaded model:
+
+```text
+Timestamp, Material_Type, Label, Sample_Number, Session_Scan_Number,
+NIR_410nm … NIR_940nm, NIR_Temperature,
+pred_rf, conf_rf,
+pred_svm, conf_svm,
+pred_plsda, conf_plsda,
+pred_pcalda, conf_pcalda,
+pred_mlp, conf_mlp,
+pred_cnn, conf_cnn
+```
+
+`conf_*` is the probability of the predicted class (0–1). For SVM this comes from normalising the decision function scores; for all other models it is the softmax/predict_proba output.
+
+**Running a confusion matrix on field results later:**
+
+```python
+import pandas as pd
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+df = pd.read_csv("logs/csvs/inference_results.csv")
+df = df[df["Material_Type"] != "UNKNOWN"]   # keep only labelled rows
+
+cm = confusion_matrix(df["Material_Type"], df["pred_rf"], labels=["HDPE","LDPE","PE","PET","PP"])
+ConfusionMatrixDisplay(cm, display_labels=["HDPE","LDPE","PE","PET","PP"]).plot()
+```
+
+---
+
 ## Troubleshooting
 
 | Problem | Fix |
