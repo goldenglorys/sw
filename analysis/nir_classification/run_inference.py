@@ -60,13 +60,16 @@ NIR_WAVELENGTHS = [
 NIR_COLS = ["NIR_{}nm".format(wl) for wl in NIR_WAVELENGTHS]
 
 # name -> (backend, path)
+# onnx  : version-independent ONNX model (RF, SVM, PCA-LDA)
+# numpy : pure-numpy weight matrices (PLS-DA) -- no runtime dependency at all
+# keras : TensorFlow SavedModel (MLP, CNN)
 MODEL_REGISTRY = {
-    "rf":     ("sklearn", MODEL_DIR / "arch1_rf.pkl"),
-    "svm":    ("sklearn", MODEL_DIR / "arch1_svm.pkl"),
-    "plsda":  ("sklearn", MODEL_DIR / "arch2_plsda.pkl"),
-    "pcalda": ("sklearn", MODEL_DIR / "arch2_pcalda.pkl"),
-    "mlp":    ("keras",   MODEL_DIR / "arch3_mlp.keras"),
-    "cnn":    ("keras",   MODEL_DIR / "arch3_cnn.keras"),
+    "rf":     ("onnx",  MODEL_DIR / "arch1_rf.onnx"),
+    "svm":    ("onnx",  MODEL_DIR / "arch1_svm.onnx"),
+    "plsda":  ("numpy", MODEL_DIR / "arch2_plsda_matrices.npz"),
+    "pcalda": ("onnx",  MODEL_DIR / "arch2_pcalda.onnx"),
+    "mlp":    ("keras", MODEL_DIR / "arch3_mlp.keras"),
+    "cnn":    ("keras", MODEL_DIR / "arch3_cnn.keras"),
 }
 
 AUTO_QUIT_SECONDS = 3   # countdown after reads complete (fixed-material mode)
@@ -80,7 +83,20 @@ def load_models(keys):
         keys = list(MODEL_REGISTRY.keys())
 
     loaded = {}
+
+    onnx_needed  = any(MODEL_REGISTRY[k][0] == "onnx"  for k in keys if k in MODEL_REGISTRY)
     keras_needed = any(MODEL_REGISTRY[k][0] == "keras" for k in keys if k in MODEL_REGISTRY)
+
+    if onnx_needed:
+        try:
+            import onnxruntime as ort
+        except ImportError:
+            print("ERROR: onnxruntime not installed.")
+            print("  Run: pip3 install onnxruntime==1.10.0")
+            raise
+    else:
+        ort = None
+
     if keras_needed:
         import tensorflow as tf  # lazy import - TF startup is slow
         _keras = tf.keras
@@ -96,8 +112,10 @@ def load_models(keys):
         if not path.exists():
             print("  WARNING: {} model not found at {} -- skipping.".format(name, path))
             continue
-        if backend == "sklearn":
-            loaded[name] = ("sklearn", joblib.load(path))
+        if backend == "onnx":
+            loaded[name] = ("onnx", ort.InferenceSession(str(path)))
+        elif backend == "numpy":
+            loaded[name] = ("numpy", np.load(str(path)))
         else:
             loaded[name] = ("keras", _keras.models.load_model(path))
         print("  Loaded: {:8s}  ({})".format(name, backend))
@@ -129,25 +147,23 @@ def run_models(x_snv, models, le):
     """
     results = {}
     for name, (backend, model) in models.items():
-        if backend == "sklearn":
-            idx = int(model.predict(x_snv)[0])
-
-            # confidence: try predict_proba, fall back to decision_function
+        if backend == "onnx":
+            inp  = {model.get_inputs()[0].name: x_snv.astype(np.float32)}
+            out  = model.run(None, inp)
+            idx  = int(out[0][0])       # out[0] = label array shape (1,)
             conf = None
-            if hasattr(model, "predict_proba"):
-                try:
-                    probs = model.predict_proba(x_snv)[0]
-                    conf = float(probs[idx])
-                except Exception:
-                    pass
-            if conf is None and hasattr(model, "decision_function"):
-                try:
-                    scores = model.decision_function(x_snv)[0]
-                    # softmax normalisation of decision scores
-                    e = np.exp(scores - scores.max())
-                    conf = float(e[idx] / e.sum())
-                except Exception:
-                    pass
+            if len(out) > 1 and out[1] is not None:
+                probs = np.array(out[1][0])  # out[1] = probability array (1, n_classes)
+                conf  = float(probs[idx])
+
+        elif backend == "numpy":
+            # PLS-DA: pure numpy inference from extracted weight matrices
+            mats  = model
+            X_pca = (x_snv - mats["pca_mean"]) @ mats["pca_components"].T
+            X_c   = X_pca - mats["pls_x_mean"]
+            Y_hat = X_c @ mats["pls_coef"].T + mats["pls_intercept"]
+            idx   = int(np.argmax(Y_hat, axis=1)[0])
+            conf  = None   # PLS-DA regression scores are not calibrated probabilities
 
         else:  # keras
             x_in = x_snv.astype(np.float32)
