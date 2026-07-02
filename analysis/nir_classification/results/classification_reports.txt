@@ -1,0 +1,1385 @@
+============================================================
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+ARCH 1 — Random Forest
+=
+Best params: {'max_depth': None, 'max_features': 'sqrt', 'n_estimators': 200}
+CV accuracy: 0.9737
+Test accuracy: 0.9611
+Train time: 19.5s
+Inference time: 0.1426 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.92      1.00      0.96        34
+        LDPE       1.00      0.86      0.93        22
+          PE       0.97      0.91      0.94        32
+         PET       0.93      0.98      0.95        41
+          PP       1.00      1.00      1.00        51
+
+    accuracy                           0.96       180
+   macro avg       0.96      0.95      0.95       180
+weighted avg       0.96      0.96      0.96       180
+
+
+============================================================
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+ARCH 1 — SVM (RBF kernel)
+=
+Best params: {'C': 1000, 'gamma': 0.1}
+CV accuracy: 0.9616
+Test accuracy: 0.9500
+Train time: 0.2s
+Inference time: 0.0081 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.92      1.00      0.96        34
+        LDPE       1.00      0.86      0.93        22
+          PE       0.91      0.91      0.91        32
+         PET       0.93      0.93      0.93        41
+          PP       1.00      1.00      1.00        51
+
+    accuracy                           0.95       180
+   macro avg       0.95      0.94      0.94       180
+weighted avg       0.95      0.95      0.95       180
+
+
+============================================================
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+PCA n_components: 10
+PLS n_components: 4
+Test accuracy: 0.7056
+Train time: 0.01s
+Inference time: 0.0018 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.57      0.91      0.70        34
+        LDPE       1.00      0.36      0.53        22
+          PE       0.74      0.62      0.68        32
+         PET       0.74      0.63      0.68        41
+          PP       0.75      0.82      0.79        51
+
+    accuracy                           0.71       180
+   macro avg       0.76      0.67      0.68       180
+weighted avg       0.74      0.71      0.70       180
+
+
+============================================================
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+PCA n_components: 10
+Test accuracy: 0.7444
+Train time: 0.00s
+Inference time: 0.0028 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.67      0.88      0.76        34
+        LDPE       0.94      0.68      0.79        22
+          PE       0.74      0.62      0.68        32
+         PET       0.74      0.63      0.68        41
+          PP       0.75      0.84      0.80        51
+
+    accuracy                           0.74       180
+   macro avg       0.77      0.73      0.74       180
+weighted avg       0.76      0.74      0.74       180
+
+
+============================================================
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+ARCH 3 — MLP (best config: [128, 64, 32])
+=
+Configs tried: [[64, 32], [128, 64, 32]]
+Best config: [128, 64, 32]
+Epochs run (early stopping): 139
+Min val loss: 0.2621
+Test accuracy: 0.8222
+Train time (est): 202.1s
+Inference time: 0.3074 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.76      1.00      0.86        34
+        LDPE       1.00      0.73      0.84        22
+          PE       0.72      0.72      0.72        32
+         PET       0.74      0.78      0.76        41
+          PP       0.98      0.84      0.91        51
+
+    accuracy                           0.82       180
+   macro avg       0.84      0.81      0.82       180
+weighted avg       0.84      0.82      0.82       180
+
+
+============================================================
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+ARCH 3 — 1D CNN
+=
+Epochs run (early stopping): 105
+Test accuracy: 0.8611
+Train time: 10.5s
+Inference time: 0.9126 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.81      1.00      0.89        34
+        LDPE       1.00      0.77      0.87        22
+          PE       0.68      0.88      0.77        32
+         PET       0.88      0.73      0.80        41
+          PP       1.00      0.90      0.95        51
+
+    accuracy                           0.86       180
+   macro avg       0.87      0.86      0.86       180
+weighted avg       0.88      0.86      0.86       180
+
+
+============================================================
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+ARCH 2 — PCA → PLS-DA
+=
+PCA n_components: 10
+PLS n_components: 4
+Test accuracy: 0.7056
+Train time: 0.01s
+Inference time: 0.0014 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.57      0.91      0.70        34
+        LDPE       1.00      0.36      0.53        22
+          PE       0.74      0.62      0.68        32
+         PET       0.74      0.63      0.68        41
+          PP       0.75      0.82      0.79        51
+
+    accuracy                           0.71       180
+   macro avg       0.76      0.67      0.68       180
+weighted avg       0.74      0.71      0.70       180
+
+
+============================================================
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+ARCH 2 — PCA → LDA
+=
+PCA n_components: 10
+Test accuracy: 0.7444
+Train time: 0.00s
+Inference time: 0.0017 ms/sample
+
+              precision    recall  f1-score   support
+
+        HDPE       0.67      0.88      0.76        34
+        LDPE       0.94      0.68      0.79        22
+          PE       0.74      0.62      0.68        32
+         PET       0.74      0.63      0.68        41
+          PP       0.75      0.84      0.80        51
+
+    accuracy                           0.74       180
+   macro avg       0.77      0.73      0.74       180
+weighted avg       0.76      0.74      0.74       180
+
+
+============================================================
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+        Model Accuracy Macro F1 Infer (ms/sample)
+     Arch1 RF   0.9611   0.9545            0.1473
+    Arch1 SVM   0.9500   0.9435            0.0076
+ Arch2 PLS-DA   0.7056   0.6770            0.0008
+Arch2 PCA-LDA   0.7444   0.7415            0.0012
+    Arch3 MLP   0.8222   0.8178            0.3218
+    Arch3 CNN   0.8611   0.8564            0.3851
+
+Best accuracy : Arch1 RF
+Best macro-F1 : Arch1 RF
+Fastest infer : Arch2 PLS-DA
+
+============================================================
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+FINAL COMPARISON TABLE
+=
+        Model Accuracy Macro F1 Infer (ms/sample)
+     Arch1 RF   0.9611   0.9545            0.1476
+    Arch1 SVM   0.9500   0.9435            0.0081
+ Arch2 PLS-DA   0.7056   0.6770            0.0008
+Arch2 PCA-LDA   0.7444   0.7415            0.0012
+    Arch3 MLP   0.8222   0.8178            0.3028
+    Arch3 CNN   0.8611   0.8564            0.3100
+
+Best accuracy : Arch1 RF
+Best macro-F1 : Arch1 RF
+Fastest infer : Arch2 PLS-DA
+
