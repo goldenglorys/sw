@@ -75,6 +75,12 @@ MODEL_REGISTRY = {
 }
 
 AUTO_QUIT_SECONDS = 3   # countdown after reads complete (fixed-material mode)
+BAR_WIDTH         = 20  # character width of the probability bar in terminal
+
+
+def softmax(x):
+    e = np.exp(x - x.max())
+    return e / e.sum()
 
 
 # -- model loading -------------------------------------------------------------
@@ -174,8 +180,8 @@ def run_models(x_snv, models, le):
                 new_n   = np.where(go_left, CL[tidx, nodes], CR[tidx, nodes])
                 nodes   = np.where(is_leaf, nodes, new_n)
             votes = VAL[tidx, nodes, :].sum(axis=0)
-            idx   = int(np.argmax(votes))
-            conf  = None
+            probs = votes / votes.sum()
+            idx   = int(np.argmax(probs))
 
         elif backend == "svm_npz":
             # SVM RBF kernel + OVO voting in pure numpy
@@ -201,8 +207,8 @@ def run_models(x_snv, models, le):
                            ic[clf_idx])
                     votes[ci if dec > 0 else cj] += 1
                     clf_idx += 1
-            idx  = int(np.argmax(votes))
-            conf = None
+            probs = votes / votes.sum()
+            idx   = int(np.argmax(probs))
 
         elif backend == "plsda_npz":
             # PLS-DA: pure numpy inference from extracted weight matrices
@@ -210,16 +216,16 @@ def run_models(x_snv, models, le):
             X_pca = (x_snv - mats["pca_mean"]) @ mats["pca_components"].T
             X_c   = X_pca - mats["pls_x_mean"]
             Y_hat = X_c @ mats["pls_coef"].T + mats["pls_intercept"]
-            idx   = int(np.argmax(Y_hat, axis=1)[0])
-            conf  = None
+            probs = softmax(Y_hat[0])
+            idx   = int(np.argmax(probs))
 
         elif backend == "pcalda_npz":
             # PCA-LDA: pure numpy inference from extracted weight matrices
             mats  = model
             X_pca = (x_snv - mats["pca_mean"]) @ mats["pca_components"].T
             dec   = X_pca @ mats["lda_coef"].T + mats["lda_intercept"]
-            idx   = int(np.argmax(dec, axis=1)[0])
-            conf  = None
+            probs = softmax(dec[0])
+            idx   = int(np.argmax(probs))
 
         else:  # keras
             x_in = x_snv.astype(np.float32)
@@ -230,8 +236,9 @@ def run_models(x_snv, models, le):
             conf  = float(probs[idx])
 
         results[name] = {
-            "pred": le.inverse_transform([idx])[0],
-            "conf": conf,
+            "pred":  le.inverse_transform([idx])[0],
+            "conf":  float(probs[idx]),
+            "probs": probs,
         }
     return results
 
@@ -274,7 +281,7 @@ def mock_reading():
 
 # -- CSV -----------------------------------------------------------------------
 
-def build_headers(model_names):
+def build_headers(model_names, class_names):
     base = (
         ["Timestamp", "Material_Type", "Label",
          "Sample_Number", "Session_Scan_Number"]
@@ -283,18 +290,22 @@ def build_headers(model_names):
     )
     for name in model_names:
         base += ["pred_{}".format(name), "conf_{}".format(name)]
+        for cls in class_names:
+            base += ["prob_{}_{}".format(name, cls)]
     return base
 
 
 def build_row(ts, material, label, sample_num, session_num,
-              raw_values, temperature, model_results, model_names):
+              raw_values, temperature, model_results, model_names, class_names):
     row = [ts, material, label, sample_num, session_num] + raw_values + [temperature]
     for name in model_names:
         r = model_results.get(name)
         row += [
             r["pred"] if r else "",
-            "{:.4f}".format(r["conf"]) if (r and r["conf"] is not None) else "",
+            "{:.4f}".format(r["conf"]) if r else "",
         ]
+        for i in range(len(class_names)):
+            row += ["{:.4f}".format(r["probs"][i]) if r else ""]
     return row
 
 
@@ -310,9 +321,25 @@ def open_csv(path, headers):
 
 # -- scan loop -----------------------------------------------------------------
 
+def print_option_b(results, model_names, class_names):
+    """Print per-model probability bar chart (Option B display)."""
+    for name in model_names:
+        r = results.get(name)
+        if r is None:
+            continue
+        print("\n  [{}]".format(name))
+        for cls, prob in zip(class_names, r["probs"]):
+            bar = "#" * int(round(prob * BAR_WIDTH))
+            marker = " <--" if cls == r["pred"] else ""
+            print("    {:5s}  {:3.0f}%  |{:<{w}}|{}".format(
+                cls, prob * 100, bar, marker, w=BAR_WIDTH
+            ))
+        print("    --> {} ({:.0f}% confident)".format(r["pred"], r["conf"] * 100))
+
+
 def take_batch(sensor_or_mock, use_mock, reads,
                material, label, sample_num, session_num,
-               models, model_names, snv, le, writer, fh):
+               models, model_names, class_names, snv, le, writer, fh):
     """Fire `reads` sequential scans, run inference, write to CSV. Returns updated counters."""
     for i in range(reads):
         prefix = "  [{}/{}]".format(i + 1, reads) if reads > 1 else " "
@@ -327,21 +354,16 @@ def take_batch(sensor_or_mock, use_mock, reads,
         x_snv = preprocess(data["values"], snv)
         results = run_models(x_snv, models, le)
 
-        preds_parts = []
-        for n, r in results.items():
-            conf_str = "({:.0f}%)".format(r["conf"] * 100) if r["conf"] is not None else ""
-            preds_parts.append("{}={}{}".format(n, r["pred"], conf_str))
-        preds_str = "  ".join(preds_parts)
-
         peak_idx = int(np.argmax(data["values"]))
         print("done.  peak={}nm  temp={:.1f}C".format(
             NIR_WAVELENGTHS[peak_idx], data["temperature"]
         ))
-        print("          {}".format(preds_str))
+
+        print_option_b(results, model_names, class_names)
 
         row = build_row(
             ts, material, label, sample_num, session_num,
-            data["values"], data["temperature"], results, model_names,
+            data["values"], data["temperature"], results, model_names, class_names,
         )
         writer.writerow(row)
         fh.flush()
@@ -362,7 +384,7 @@ def input_with_timeout(prompt, timeout):
 
 
 def scan_loop(sensor_or_mock, use_mock, material, label,
-              models, model_names, snv, le, reads, writer, fh):
+              models, model_names, class_names, snv, le, reads, writer, fh):
     label_str = ", label={}".format(label) if label else ""
     reads_str = "{} reading{} per trigger".format(reads, "s" if reads > 1 else "")
     print("\n[{}{}]  Enter=scan ({}) | 'q'=quit\n".format(material, label_str, reads_str))
@@ -396,7 +418,7 @@ def scan_loop(sensor_or_mock, use_mock, material, label,
         sample_num, session_num = take_batch(
             sensor_or_mock, use_mock, reads,
             material, label, sample_num, session_num,
-            models, model_names, snv, le, writer, fh,
+            models, model_names, class_names, snv, le, writer, fh,
         )
 
     return session_num
@@ -443,7 +465,8 @@ def main():
         print("ERROR: preprocessing artefacts not found.")
         print("  Run: python analysis/nir_classification/00_split_and_preprocess.py")
         sys.exit(1)
-    print("Classes: {}".format(list(le.classes_)))
+    class_names = list(le.classes_)
+    print("Classes: {}".format(class_names))
 
     print("\nLoading models...")
     models = load_models(args.model)
@@ -467,7 +490,7 @@ def main():
             sys.exit(1)
 
     out_path = Path(args.output)
-    headers  = build_headers(model_names)
+    headers  = build_headers(model_names, class_names)
     fh, writer = open_csv(out_path, headers)
 
     print("\nOutput CSV : {}".format(out_path))
@@ -484,7 +507,7 @@ def main():
             sensor if not args.mock else None,
             args.mock,
             args.material.upper(), args.label,
-            models, model_names, snv, le,
+            models, model_names, class_names, snv, le,
             args.reads, writer, fh,
         )
     except KeyboardInterrupt:
